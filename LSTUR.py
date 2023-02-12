@@ -76,15 +76,16 @@ class NewsEncoder(nn.Module):
 class UserEncoder(nn.Module):
     def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300):
         super(UserEncoder, self).__init__()
+        self.seq_len = seq_len
         self.UserEmbedding = nn.Embedding(user_size, user_dim)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
         self.gru = nn.GRU(word_dim+topic_dim+subtopic_dim, word_dim+topic_dim+subtopic_dim-user_dim, seq_len, batch_first=True)
 
     def forward(self, users,topic,subtopic, W, src_len):
+        b, n, t, _ = W.shape
         
-        
-        news_embed = th.zeros(10,10,500)
-        for i in range(10):
+        news_embed = th.zeros(b,n,500)
+        for i in range(b):
             news_embed[i] = self.NewsEncoder(topic[i],subtopic[i], W[i])
 
         user_embed = self.UserEmbedding(users)
@@ -111,15 +112,16 @@ class LSTUR_con(nn.Module):
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
 
     def forward(self, users,topic,subtopic, W, src_len, Candidate_topic,Candidate_subtopic,CandidateNews):
+        b, n, t, _ = CandidateNews.shape
         Users = self.UserEncoder(users,topic,subtopic, W, src_len)
 
-        Candidates =  th.zeros(10,5,500)
-        for i in range(10):
+        Candidates =  th.zeros(b,n,500)
+        for i in range(b):
             Candidates[i] = self.NewsEncoder(Candidate_topic[i],Candidate_subtopic[i], CandidateNews[i])
         
 
-        Scores = th.zeros(10,5)
-        for i in range(10):
+        Scores = th.zeros(b,n)
+        for i in range(b):
             Scores[i] = Candidates[i] @ Users[i]
 
         return Scores
