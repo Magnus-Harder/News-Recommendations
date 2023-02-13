@@ -89,8 +89,8 @@ class UserEncoder(nn.Module):
             news_embed[i] = self.NewsEncoder(topic[i],subtopic[i], W[i])
 
         user_embed = self.UserEmbedding(users)
-
-        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len, batch_first=True, enforce_sorted=False)
+        # src_len_cpu = src_len.cpu()
+        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False)
 
         packed_outputs,hidden = self.gru(packed_news)
 
