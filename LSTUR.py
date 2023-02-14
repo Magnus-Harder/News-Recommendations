@@ -74,24 +74,24 @@ class NewsEncoder(nn.Module):
 
 # Define the user encoder
 class UserEncoder(nn.Module):
-    def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300):
+    def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300, device="cpu"):
         super(UserEncoder, self).__init__()
         self.seq_len = seq_len
         self.UserEmbedding = nn.Embedding(user_size, user_dim)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
         self.gru = nn.GRU(word_dim+topic_dim+subtopic_dim, word_dim+topic_dim+subtopic_dim-user_dim, seq_len, batch_first=True)
+        self.device = device
 
     def forward(self, users,topic,subtopic, W, src_len):
         b, n, t, _ = W.shape
         
-        news_embed = th.zeros(b,n,500)
+        news_embed = th.zeros(b,n,500,device=self.device)
         for i in range(b):
             news_embed[i] = self.NewsEncoder(topic[i],subtopic[i], W[i])
 
         user_embed = self.UserEmbedding(users)
         # src_len_cpu = src_len.cpu()
-        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False)
-
+        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
         packed_outputs,hidden = self.gru(packed_news)
 
 
@@ -106,21 +106,22 @@ class UserEncoder(nn.Module):
 
 # Define the LSTUR-ini model
 class LSTUR_con(nn.Module):
-    def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300):
+    def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300, device="cpu"):
         super(LSTUR_con, self).__init__()
-        self.UserEncoder = UserEncoder(user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
+        self.UserEncoder = UserEncoder(user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim, device)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
+        self.device = device
 
     def forward(self, users,topic,subtopic, W, src_len, Candidate_topic,Candidate_subtopic,CandidateNews):
         b, n, t, _ = CandidateNews.shape
         Users = self.UserEncoder(users,topic,subtopic, W, src_len)
 
-        Candidates =  th.zeros(b,n,500)
+        Candidates =  th.zeros(b,n,500,device=self.device)
         for i in range(b):
             Candidates[i] = self.NewsEncoder(Candidate_topic[i],Candidate_subtopic[i], CandidateNews[i])
         
 
-        Scores = th.zeros(b,n)
+        Scores = th.zeros(b,n,device=self.device)
         for i in range(b):
             Scores[i] = Candidates[i] @ Users[i]
 
@@ -130,14 +131,18 @@ class LSTUR_con(nn.Module):
 
 
 #%%
+device= "cuda"
+Users = th.tensor([1,2,3,4,5,6,7,8,9,0]).to(device)
+topics =  th.randint(0,10,(10,10)).to(device)
+subtopics = th.randint(0,10,(10,10)).to(device)
+W_batch = th.rand(10,10,10,300).to(device)
+Candidate_topic = th.randint(0,10,(10,5)).to(device)
+Candidate_subtopic = th.randint(0,10,(10,5)).to(device)
+CandidateNews = th.rand(10,5,10,300).to(device)
 
-Users = th.tensor([1,2,3,4,5,6,7,8,9,0])
-topics =  th.randint(0,10,(10,10))
-subtopics = th.randint(0,10,(10,10))
-W_batch = th.rand(10,10,10,300)
-Candidate_topic = th.randint(0,10,(10,5))
-Candidate_subtopic = th.randint(0,10,(10,5))
-CandidateNews = th.rand(10,5,10,300)
+
+
+
 
 UserEncoder_module = UserEncoder(
     user_dim=300,
@@ -158,11 +163,12 @@ LSTUR_con_module = LSTUR_con(
     subtopic_dim=100,
     topic_size=10,
     subtopic_size=10,
-    word_dim=300
-)
+    word_dim=300,
+    device=device
+).to(device)
 
-src_len = th.tensor([10,5,6,8,10,9,6,8,9,3])
-target = th.tensor([1,0,4,0,2,0,3,0,1,2])
+src_len = th.tensor([10,5,6,8,10,9,6,8,9,3]).to(device)
+target = th.tensor([1,0,4,0,2,0,3,0,1,2]).to(device)
 
 
 optimizer = th.optim.Adam(LSTUR_con_module.parameters(), lr=0.001)
