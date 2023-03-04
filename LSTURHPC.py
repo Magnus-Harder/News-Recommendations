@@ -32,10 +32,16 @@ optimizer = optim.Adam(LSTUR_con_module.parameters(), lr=0.001)
 
 model = LSTUR_con_module.to(device)
 
+# BatchSize = 100
+# batches = 1537  
+# epochs = 10
+# vali_batches = 709
+
 BatchSize = 100
-batches = 2  
+batches = 10  
 epochs = 2
 vali_batches = 2
+
 
 model = LSTUR_con_module.to(device)
 loss_fn = nn.CrossEntropyLoss()
@@ -51,7 +57,7 @@ loss_vali = []
 #%%
 for epoch in range(epochs):
 
-    BatchLoader = load_batch(UserData, batch_size=BatchSize,train = True, device=device)
+    BatchLoader = load_batch(UserData, batch_size=BatchSize,train = True, device=device, shuffle=True)
 
     for _ in range(batches):
         User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked = BatchLoader.__next__()
@@ -72,15 +78,14 @@ for epoch in range(epochs):
     with th.no_grad():
         print("Validation")
         AUC_score, MRR_score, loss_vali_score = Validation.get_metrics(model, batches=vali_batches)
-        #print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
 
         AUC.append(AUC_score)
         MRR.append(MRR_score)
         loss_vali.append(loss_vali_score)
 
 
-
-    print(f"AUC: {AUC_score}. MRR: {MRR_score}. Loss: {loss_vali}.")
+    print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
+    print(f"AUC: {AUC_score}. MRR: {MRR_score}. Loss: {loss_vali_score}.")
 
 import pickle as pkl
 

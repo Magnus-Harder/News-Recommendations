@@ -8,6 +8,7 @@
 #BSUB -R "rusage[mem=16G]"
 #BSUB -R "span[hosts=1]"
 #BSUB -W 24:00
+#BSUB -N
 # end of BSUB options
 
 # module load scipy/VERSION
