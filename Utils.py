@@ -26,7 +26,6 @@ class ValidateModel:
         order = th.topk(y_score,k=n_classes).indices
         rank = th.take(order,y_true) +1
         rr_score = 1 / rank
-        print(rr_score)
         return rr_score.sum()/ N
         
     def ROC_AUC(self, y_true, y_score):
