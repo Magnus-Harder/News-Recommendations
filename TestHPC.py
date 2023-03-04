@@ -4,9 +4,14 @@ import sklearn
 import numpy as np
 import pandas as pd
 import random
+import pickle
+from LSTUR import GloVe
 
 print("Hello HPC")
 
 
-list_test = list(1,2,3,4,5,6,7,8,9,10)
+with open('TestSave.pkl' , 'wb') as f:
+	pickle.dump([0,0,0],f)
 
+list_test = [1,2,3,4,5,6,7,8,9,10]
+print(list_test)
