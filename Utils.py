@@ -31,14 +31,14 @@ class ValidateModel:
     def get_metrics(self,model,batches):
         
         auc_score = 0
+        with th.no_grad():
+            for i in range(batches):
+                User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked = self.data_loader.__next__()
 
-        for i in range(batches):
-            User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked = self.data_loader.__next__()
-
-            output = model(User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor)
-            pred = self.Softmax(output)
-            
-            auc_score += self.ROC_AUC(Clicked.detach(),pred.detach())
-            print(self.ROC_AUC(Clicked.detach(),pred.detach()))
+                output = model(User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor)
+                pred = self.Softmax(output)
+                
+                auc_score += self.ROC_AUC(Clicked.detach().cpu(),pred.detach().cpu())
+                print(self.ROC_AUC(Clicked.detach().cpu(),pred.detach().cpu()))
 
         return auc_score/batches
