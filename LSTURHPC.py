@@ -11,7 +11,7 @@ from Data_loaders import load_batch, User_vocab,Category_vocab,Subcategory_vocab
 # Load Model
 from LSTUR import LSTUR_con
 from torch import nn,optim
-device = "cpu"
+device = "cuda"
 max_history_length = 50
 
 
@@ -32,10 +32,10 @@ optimizer = optim.Adam(LSTUR_con_module.parameters(), lr=0.001)
 
 model = LSTUR_con_module.to(device)
 
-BatchSize = 2
-batches = 1  
-epochs = 1
-vali_batches = 1
+BatchSize = 100
+batches = 2  
+epochs = 2
+vali_batches = 2
 
 model = LSTUR_con_module.to(device)
 loss_fn = nn.CrossEntropyLoss()
