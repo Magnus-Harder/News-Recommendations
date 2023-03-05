@@ -1,4 +1,3 @@
-#%%
 # Import packages
 
 import torch as th
@@ -79,7 +78,11 @@ class UserEncoder(nn.Module):
         self.seq_len = seq_len
         self.UserEmbedding = nn.Embedding(user_size, user_dim,padding_idx=0)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
-        self.gru = nn.GRU(word_dim+topic_dim+subtopic_dim, word_dim+topic_dim+subtopic_dim-user_dim, seq_len, batch_first=True)
+        self.gru = nn.GRU(  input_size = word_dim+topic_dim+subtopic_dim, 
+                            hidden_size = word_dim+topic_dim+subtopic_dim-user_dim, 
+                            num_layers = 1,
+                            dropout = 0.2, 
+                            batch_first=True)
         self.device = device
 
     def forward(self, users,topic,subtopic, W, src_len):
@@ -128,63 +131,3 @@ class LSTUR_con(nn.Module):
         return Scores
 
 
-
-
-#%%
-# device= "cuda"
-# Users = th.tensor([1,2,3,4,5,6,7,8,9,0]).to(device)
-# topics =  th.randint(0,10,(10,10)).to(device)
-# subtopics = th.randint(0,10,(10,10)).to(device)
-# W_batch = th.rand(10,10,10,300).to(device)
-# Candidate_topic = th.randint(0,10,(10,5)).to(device)
-# Candidate_subtopic = th.randint(0,10,(10,5)).to(device)
-# CandidateNews = th.rand(10,5,10,300).to(device)
-
-
-
-
-
-# UserEncoder_module = UserEncoder(
-#     user_dim=300,
-#     user_size=10,
-#     seq_len=10,
-#     topic_dim=100,
-#     subtopic_dim=100,
-#     topic_size=10,
-#     subtopic_size=10,
-#     word_dim=300
-# )
-
-# LSTUR_con_module = LSTUR_con(
-#     user_dim=300,
-#     user_size=10,
-#     seq_len=10,
-#     topic_dim=100,
-#     subtopic_dim=100,
-#     topic_size=10,
-#     subtopic_size=10,
-#     word_dim=300,
-#     device=device
-# ).to(device)
-
-# src_len = th.tensor([10,5,6,8,10,9,6,8,9,3]).to(device)
-# target = th.tensor([1,0,4,0,2,0,3,0,1,2]).to(device)
-
-
-# optimizer = th.optim.Adam(LSTUR_con_module.parameters(), lr=0.001)
-# loss_fn = nn.CrossEntropyLoss()
-
-# for i in range(15):
-#     optimizer.zero_grad()
-#     Scores = LSTUR_con_module(Users,topics,subtopics,W_batch,src_len,Candidate_topic,Candidate_subtopic,CandidateNews)
-
-#     loss = loss_fn(Scores, target)
-#     loss.backward()
-#     optimizer.step()
-
-#     print(f"Predicted {Scores.argmax(dim=1)} with loss {loss.item()}")
-
-
-
-
-# %%
