@@ -59,6 +59,7 @@ class TopicEncoder(nn.Module):
 class NewsEncoder(nn.Module):
     def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300):
         super(NewsEncoder, self).__init__()
+        self.dropout = nn.Dropout(0.2)
         self.TitleEncoder = TitleEncoder(word_dim)
         self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
 
@@ -68,7 +69,7 @@ class NewsEncoder(nn.Module):
         title = self.TitleEncoder(W)
 
 
-        return th.hstack([topic, title])
+        return self.dropout(th.hstack([topic, title]))
 
 
 # Define the user encoder
@@ -81,9 +82,10 @@ class UserEncoder(nn.Module):
         self.gru = nn.GRU(  input_size = word_dim+topic_dim+subtopic_dim, 
                             hidden_size = word_dim+topic_dim+subtopic_dim-user_dim, 
                             num_layers = 1,
-                            dropout = 0.2, 
+                            # dropout = 0.2, 
                             batch_first=True)
         self.device = device
+        self.dropout = nn.Dropout(0.2)
 
     def forward(self, users,topic,subtopic, W, src_len):
         b, n, t, _ = W.shape
@@ -100,7 +102,7 @@ class UserEncoder(nn.Module):
 
 
 
-        user_s = hidden[-1]
+        user_s = self.dropout(hidden[-1])
 
         u = th.hstack([user_embed, user_s])         
 

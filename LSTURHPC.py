@@ -1,4 +1,25 @@
 #%%
+# Script used to train LSTUR model on HPC in order to recreate results from LSTUR-paper.
+# Hyperparameters used in paper:
+#   Word embedding dim = 300
+#   Filters in CNN = 300
+#   Windowsize CNN = 3
+#   Dropout rate = 0.2
+#   Masking probability = 0.5
+#   Adam optimizer learning rate = 0.01
+#   Batch size = 400
+#   Negative samples pr positive sample = 4
+#   Epochs = 10
+#   History length = 50
+#   Topic/subtopic dimension = 100
+#   User dim = 300
+#   N_Layers in GRU = 1
+#   Gru output vector size = 400
+#   Attention Hidden dim = 200
+#   Head num = 4
+#   Head dim = 100
+
+
 # Import libraries
 import pandas as pd
 import random
@@ -18,7 +39,7 @@ max_history_length = 50
 
 LSTUR_con_module = LSTUR_con(
     seq_len = max_history_length,
-    user_dim=300,
+    user_dim=100,
     user_size=User_vocab.__len__(),
     topic_size=Category_vocab.__len__(),
     topic_dim=100,
@@ -29,24 +50,24 @@ LSTUR_con_module = LSTUR_con(
 )
 
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(LSTUR_con_module.parameters(), lr=0.001)
+optimizer = optim.Adam(LSTUR_con_module.parameters(), lr=0.01)
 
 model = LSTUR_con_module.to(device)
 
-BatchSize = 100
-batches = 1537  
-epochs = 10
-vali_batches = 709
+# BatchSize = 400
+# batches = 384 
+# epochs = 10
+# vali_batches = 177
 
-# BatchSize = 100
-# batches = 10  
-# epochs = 2
-# vali_batches = 2
+BatchSize = 100
+batches = 10  
+epochs = 2
+vali_batches = 2
 
 
 model = LSTUR_con_module.to(device)
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.01)
 Softmax = nn.Softmax(dim=1)
 
 
