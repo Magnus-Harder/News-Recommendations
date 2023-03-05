@@ -3,6 +3,7 @@
 import pandas as pd
 import random
 import torch as th
+import pickle as pkl
 
 # Import Scripts
 from Utils import ValidateModel
@@ -47,7 +48,7 @@ model = LSTUR_con_module.to(device)
 loss_fn = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 Softmax = nn.Softmax(dim=1)
-Validation = ValidateModel(data_loader = load_batch, data = User_vali, batch_size=BatchSize, metrics = ['MRR','ROC_AUC'], device=device,train=False)
+
 
 AUC = []
 MRR = []
@@ -77,6 +78,7 @@ for epoch in range(epochs):
         
     with th.no_grad():
         print("Validation")
+        Validation = ValidateModel(data_loader = load_batch, data = User_vali, batch_size=BatchSize, metrics = ['MRR','ROC_AUC'], device=device,train=False)
         AUC_score, MRR_score, loss_vali_score = Validation.get_metrics(model, batches=vali_batches)
 
         AUC.append(AUC_score)
@@ -87,9 +89,8 @@ for epoch in range(epochs):
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
     print(f"AUC: {AUC_score}. MRR: {MRR_score}. Loss: {loss_vali_score}.")
 
-import pickle as pkl
 
-with open('TrainingLog.pkl', 'wb') as f:
-    pkl.dump([AUC,MRR,losses,loss_vali], f)
+    with open('TrainingLog.pkl', 'wb') as f:
+        pkl.dump([AUC,MRR,losses,loss_vali], f)
 
 # %%

@@ -55,7 +55,7 @@ class ValidateModel:
                 MRR_score += MRR
                 loss_score += loss.item()
 
-                print(f"Matrics Batch: AUC: {AUC} MRR: {MRR}")
+                #print(f"Matrics Batch: AUC: {AUC} MRR: {MRR}")
 
 
         return auc_score/batches , MRR_score/batches, loss_score/batches
