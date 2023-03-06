@@ -1,3 +1,4 @@
+#%%
 # Import packages
 
 import torch as th
@@ -9,7 +10,7 @@ from torchtext.data.utils import get_tokenizer
 Tokenizer = get_tokenizer('basic_english')
 GloVe = torchtext.vocab.GloVe(name='840B', dim=300, cache='torchtext_data')
 
-
+#%%
 # Define the title encoder
 class TitleEncoder(nn.Module):
     def __init__(self, word_dim=300, window_size=3, channel_size=300):
