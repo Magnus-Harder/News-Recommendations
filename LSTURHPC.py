@@ -54,15 +54,21 @@ optimizer = optim.Adam(LSTUR_con_module.parameters(), lr=0.01)
 
 model = LSTUR_con_module.to(device)
 
-# BatchSize = 400
-# batches = 384 
-# epochs = 10
-# vali_batches = 177
+
+
+
+
+
+
+#BatchSize = 400
+#batches = 384 
+#epochs = 10
+#vali_batches = 177
 
 BatchSize = 100
-batches = 10  
-epochs = 2
-vali_batches = 2
+batches = 1500  
+epochs = 20
+vali_batches = 700
 
 
 model = LSTUR_con_module.to(device)
