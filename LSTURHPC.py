@@ -55,7 +55,7 @@ LSTUR_con_module = LSTUR_con(
 #epochs = 10
 #vali_batches = 177
 
-BatchSize = 400
+BatchSize = 300
 batches = 2 
 epochs = 1
 vali_batches = 2
