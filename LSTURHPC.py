@@ -89,7 +89,7 @@ for epoch in range(epochs):
         optimizer.zero_grad()        
         losses.append(loss.item())
 
-        print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
+        #print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
         #print(loss)
         
     with th.no_grad():
@@ -109,7 +109,7 @@ for epoch in range(epochs):
             MRR_score = ValidateModel.mean_reciprocal_rank(Clicked.detach(), pred.detach())
 
             AUC.append(AUC_score)
-            MRR.append(MRR_score)
+            MRR.append(MRR_score.item())
 
         # print("Validation")
         # Validation = ValidateModel(data_loader = load_batch, data = User_vali, batch_size=BatchSize, metrics = ['MRR','ROC_AUC'], device=device,train=False)
