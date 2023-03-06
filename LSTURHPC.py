@@ -74,20 +74,17 @@ loss_vali = []
 
 #%%
 for epoch in range(epochs):
-
     BatchLoader = load_batch(UserData, batch_size=BatchSize,train = True, device=device, shuffle=True)
 
     for _ in range(batches):
         User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked = BatchLoader.__next__()
-
-        optimizer.zero_grad()
 
         output = model(User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor)
 
         loss = loss_fn(output, Clicked)
         loss.backward()
         optimizer.step()
-        
+	optimizer.zero_grad()        
         losses.append(loss.item())
 
         print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')

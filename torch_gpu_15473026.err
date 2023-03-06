@@ -1,0 +1,13 @@
+Loaded dependency [numpy/1.22.3-python-3.9.11-openblas-0.3.19]: openblas/0.3.19
+Loaded dependency [python3/3.9.11]: gcc/10.3.0-binutils-2.36.1
+Loaded dependency [numpy/1.22.3-python-3.9.11-openblas-0.3.19]: python3/3.9.11
+Loaded dependency [scipy/1.7.3-python-3.9.11]: numpy/1.22.3-python-3.9.11-openblas-0.3.19
+Loaded module: scipy/1.7.3-python-3.9.11
+
+Loading scipy/1.7.3-python-3.9.11
+  Loading requirement: openblas/0.3.19 gcc/10.3.0-binutils-2.36.1 python3/3.9.11
+    numpy/1.22.3-python-3.9.11-openblas-0.3.19
+Loaded module: cuda/11.7
+  File "/work3/s204117/News-Recommendations/LSTURHPC.py", line 87
+    optimizer.zero_grad()        
+TabError: inconsistent use of tabs and spaces in indentation
