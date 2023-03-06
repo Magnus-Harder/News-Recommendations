@@ -74,6 +74,8 @@ loss_vali = []
 
 #%%
 for epoch in range(epochs):
+
+    optimizer.zero_grad()
     BatchLoader = load_batch(UserData, batch_size=BatchSize,train = True, device=device, shuffle=True)
 
     for _ in range(batches):
@@ -84,7 +86,7 @@ for epoch in range(epochs):
         loss = loss_fn(output, Clicked)
         loss.backward()
         optimizer.step()
-	optimizer.zero_grad()        
+        optimizer.zero_grad()        
         losses.append(loss.item())
 
         print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
