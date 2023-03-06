@@ -49,16 +49,6 @@ LSTUR_con_module = LSTUR_con(
     device=device
 )
 
-loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(LSTUR_con_module.parameters(), lr=0.01)
-
-model = LSTUR_con_module.to(device)
-
-
-
-
-
-
 
 #BatchSize = 400
 #batches = 384 
@@ -66,14 +56,14 @@ model = LSTUR_con_module.to(device)
 #vali_batches = 177
 
 BatchSize = 100
-batches = 1500  
-epochs = 20
-vali_batches = 700
+batches = 1 
+epochs = 1
+vali_batches = 2
 
 
 model = LSTUR_con_module.to(device)
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01)
+optimizer = optim.Adam(model.parameters(), lr=0.0001)
 Softmax = nn.Softmax(dim=1)
 
 
@@ -104,17 +94,35 @@ for epoch in range(epochs):
         #print(loss)
         
     with th.no_grad():
-        print("Validation")
-        Validation = ValidateModel(data_loader = load_batch, data = User_vali, batch_size=BatchSize, metrics = ['MRR','ROC_AUC'], device=device,train=False)
-        AUC_score, MRR_score, loss_vali_score = Validation.get_metrics(model, batches=vali_batches)
 
-        AUC.append(AUC_score)
-        MRR.append(MRR_score)
-        loss_vali.append(loss_vali_score)
+        BatchLoader_vali = load_batch(User_vali, batch_size=BatchSize,train = False, device=device, shuffle=False)
+
+        for _ in range(vali_batches):
+            User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked = BatchLoader_vali.__next__()
+
+            output = model(User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor)
+            pred = Softmax(output)
+
+            loss = loss_fn(output, Clicked)
+            loss_vali.append(loss.item())
+
+            AUC_score = ValidateModel.ROC_AUC(Clicked.detach().cpu(), pred.detach().cpu())
+            MRR_score = ValidateModel.MRR(Clicked.detach(), pred.detach())
+
+            AUC.append(AUC_score)
+            MRR.append(MRR_score)
+
+        # print("Validation")
+        # Validation = ValidateModel(data_loader = load_batch, data = User_vali, batch_size=BatchSize, metrics = ['MRR','ROC_AUC'], device=device,train=False)
+        # AUC_score, MRR_score, loss_vali_score = Validation.get_metrics(model, batches=vali_batches)
+
+        # AUC.append(AUC_score)
+        # MRR.append(MRR_score)
+        # loss_vali.append(loss_vali_score)
 
 
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
-    print(f"AUC: {AUC_score}. MRR: {MRR_score}. Loss: {loss_vali_score}.")
+    print(f"AUC: {AUC_score}. MRR: {MRR_score}. Loss: {loss}.")
 
 
     with open('TrainingLog.pkl', 'wb') as f:
