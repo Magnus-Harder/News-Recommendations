@@ -90,7 +90,7 @@ for epoch in range(epochs):
         
         losses.append(loss.item())
 
-        #print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
+        print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
         #print(loss)
         
     with th.no_grad():
@@ -107,7 +107,7 @@ for epoch in range(epochs):
             loss_vali.append(loss.item())
 
             AUC_score = ValidateModel.ROC_AUC(Clicked.detach().cpu(), pred.detach().cpu())
-            MRR_score = ValidateModel.MRR(Clicked.detach(), pred.detach())
+            MRR_score = ValidateModel.mean_reciprocal_rank(Clicked.detach(), pred.detach())
 
             AUC.append(AUC_score)
             MRR.append(MRR_score)
