@@ -55,10 +55,10 @@ LSTUR_con_module = LSTUR_con(
 #epochs = 10
 #vali_batches = 177
 
-BatchSize = 300
-batches = 2 
-epochs = 1
-vali_batches = 2
+BatchSize = 100
+batches = 1537 
+epochs = 5
+vali_batches = 50
 
 
 model = LSTUR_con_module.to(device)

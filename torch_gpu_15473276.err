@@ -8,4 +8,3 @@ Loading scipy/1.7.3-python-3.9.11
   Loading requirement: openblas/0.3.19 gcc/10.3.0-binutils-2.36.1 python3/3.9.11
     numpy/1.22.3-python-3.9.11-openblas-0.3.19
 Loaded module: cuda/11.7
-/zhome/34/e/155680/.lsbatch/1678098539.15473044.shell: line 25:  9048 Killed                  python3 LSTURHPC.py
