@@ -88,10 +88,10 @@ class NewsData (th.utils.data.Dataset):
 
 
 Dataset = NewsData(train_tokens)
-dataloader = th.utils.data.DataLoader(Dataset, batch_size=16, shuffle=True)
+dataloader = th.utils.data.DataLoader(Dataset, batch_size=8, shuffle=True)
 
 Dataset_vali = NewsData(vali_tokens)
-dataloader_vali = th.utils.data.DataLoader(Dataset_vali, batch_size=16, shuffle=True)
+dataloader_vali = th.utils.data.DataLoader(Dataset_vali, batch_size=8, shuffle=True)
 
 device = th.device("cuda" if th.cuda.is_available() else "cpu")
 
@@ -104,7 +104,7 @@ optimizer = th.optim.AdamW(Model.parameters(), lr=5e-6)
 loss_fn = th.nn.CrossEntropyLoss()
 
 #%%
-epochs = 1 
+epochs = 10
 
 losses_train = []
 losses_vali = []
@@ -127,12 +127,10 @@ for epoch in range(epochs):
         for batch in tqdm(dataloader_vali, leave= True):
             batch = {key : val.to(device) for key,val in batch.items()}
             output = Model(**batch)
-            loss = loss_fn(output.logits, batch['input_ids'])
+            loss = loss_fn(th.transpose(output.logits,1,2), batch['input_ids'])
 
             losses_vali.append(loss.item())
 
-            if len(losses_vali) > 2:
-                break
 
 # %%
 
