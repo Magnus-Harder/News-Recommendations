@@ -10,6 +10,13 @@ from sklearn.metrics import (
 import torch as th
 import numpy as np
 
+######
+# 1. 10 pad 330
+# 2. 20 pad 330
+
+
+# [0.02,0.22,0.023,----, x, x,x,x,x,x,...]
+
 
 
 

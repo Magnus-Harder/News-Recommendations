@@ -4,6 +4,13 @@
 # Data: MSN_news_dataset  #
 ###########################
 
+##################################
+# Hyperparameters: Validation
+# Batch_size: 16,32
+# Epochs: 2,3,4
+# Learning_rate: 5e-5, 3e-5, 2e-5
+##################################
+
 # Import libraries
 import torch as th
 import pandas as pd
