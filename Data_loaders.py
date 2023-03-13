@@ -81,7 +81,7 @@ def Datapoint_to_Encodings(User):
             Negative.append(Impressions[idx])
 
     Impressions = [Positive[0]]
-
+    random.seed(0)
    
 
     if len(Negative) > 3:

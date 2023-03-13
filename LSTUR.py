@@ -105,7 +105,7 @@ class UserEncoder(nn.Module):
 
         user_s = self.dropout(hidden[-1])
 
-        u = th.hstack([user_embed, user_s])         
+        u = th.hstack([user_s, user_embed])         
 
         return u
 
