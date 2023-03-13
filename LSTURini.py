@@ -81,7 +81,7 @@ class UserEncoder(nn.Module):
         self.UserEmbedding = nn.Embedding(user_size, user_dim,padding_idx=0)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
         self.gru = nn.GRU(  input_size = word_dim+topic_dim+subtopic_dim, 
-                            hidden_size = word_dim+topic_dim+subtopic_dim-user_dim, 
+                            hidden_size = word_dim+topic_dim+subtopic_dim, 
                             num_layers = 1,
                             # dropout = 0.2, 
                             batch_first=True)
@@ -98,22 +98,17 @@ class UserEncoder(nn.Module):
         user_embed = self.UserEmbedding(users)
         # src_len_cpu = src_len.cpu()
         packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
-        packed_outputs,hidden = self.gru(packed_news)
-
-
-
+        packed_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
 
         user_s = self.dropout(hidden[-1])
-
-        u = th.hstack([user_embed, user_s])         
-
-        return u
+         
+        return user_s
 
 
 # Define the LSTUR-ini model
-class LSTUR_con(nn.Module):
+class LSTURini(nn.Module):
     def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300, device="cpu"):
-        super(LSTUR_con, self).__init__()
+        super(LSTURini, self).__init__()
         self.UserEncoder = UserEncoder(user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim, device)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
         self.device = device
