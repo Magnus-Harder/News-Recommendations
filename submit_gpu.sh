@@ -1,5 +1,5 @@
 #!/bin/sh
-#BSUB -J torch_gpu
+#BSUB -J torch_gpu001
 #BSUB -o torch_gpu_%J.out
 #BSUB -e torch_gpu_%J.err
 #BSUB -q gpuv100

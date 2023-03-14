@@ -48,7 +48,7 @@ LSTUR_con_module = LSTURini(
 )
 
 # Set hyperparameters for data loading and training
-BatchSize = 400
+BatchSize = 200
 batches =  int(len(UserData)/BatchSize) 
 epochs = 5
 vali_batches = int(len(User_vali))
@@ -56,7 +56,7 @@ vali_batches = int(len(User_vali))
 # Initialize model on device, loss function and optimizer
 model = LSTUR_con_module.to(device)
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.01)
+optimizer = optim.Adam(model.parameters(), lr=0.001)
 Softmax = nn.Softmax(dim=1)
 
 
@@ -183,5 +183,5 @@ for epoch in range(epochs):
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
 # Saving Training Log
-with open('TrainingLog.pkl', 'wb') as f:
+with open('TrainingLoglr001.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)
