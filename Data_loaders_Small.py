@@ -12,27 +12,26 @@ import torch as th
 from LSTUR import GloVe
 
 
-# Load tsv file
-News_vali = pd.read_csv('MINDdemo_dev/news.tsv', sep='\t', header=None)
-News_vali.columns = ['news_id', 'category', 'subcategory', 'title', 'abstract', 'url', 'title_entities', 'abstract_entities']
-
-User_vali = pd.read_csv('MINDdemo_dev/behaviors.tsv', sep='\t', header=None)
-User_vali.columns = ['impression_id', 'user_id', 'time', 'history', 'impressions']
-
 
 # Load tsv file
-News = pd.read_csv('MINDdemo_train/news.tsv', sep='\t', header=None)
+
+# Load News
+News = pd.read_csv('MINDsmall_train/news.tsv', sep='\t', header=None)
 News.columns = ['news_id', 'category', 'subcategory', 'title', 'abstract', 'url', 'title_entities', 'abstract_entities']
 
-News_vali = pd.read_csv('MINDdemo_dev/news.tsv', sep='\t', header=None)
+News_vali = pd.read_csv('MINDsmall_dev/news.tsv', sep='\t', header=None)
 News_vali.columns = ['news_id', 'category', 'subcategory', 'title', 'abstract', 'url', 'title_entities', 'abstract_entities']
 
 News_con = pd.concat([News, News_vali], ignore_index=True)
-#News_con = News_con.drop_duplicates(subset=['news_id'], keep='first')
 
 
-UserData = pd.read_csv('MINDdemo_train/behaviors.tsv', sep='\t', header=None)
+# Load User
+UserData = pd.read_csv('MINDsmall_train/behaviors.tsv', sep='\t', header=None)
 UserData.columns = ['impression_id', 'user_id', 'time', 'history', 'impressions']
+
+User_vali = pd.read_csv('MINDsmall_dev/behaviors.tsv', sep='\t', header=None)
+User_vali.columns = ['impression_id', 'user_id', 'time', 'history', 'impressions']
+
 
 UserData = UserData.dropna()
 User_vali = User_vali.dropna()
