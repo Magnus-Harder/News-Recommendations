@@ -87,11 +87,12 @@ class UserEncoder(nn.Module):
                             batch_first=True)
         self.device = device
         self.dropout = nn.Dropout(0.2)
+        self.news_size = word_dim+topic_dim+subtopic_dim
 
     def forward(self, users,topic,subtopic, W, src_len):
         b, n, t, _ = W.shape
         
-        news_embed = th.zeros(b,n,500,device=self.device)
+        news_embed = th.zeros(b,n,self.news_size,device=self.device)
         for i in range(b):
             news_embed[i] = self.NewsEncoder(topic[i],subtopic[i], W[i])
 
@@ -112,12 +113,13 @@ class LSTURini(nn.Module):
         self.UserEncoder = UserEncoder(user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim, device)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
         self.device = device
+        self.news_size = word_dim+topic_dim+subtopic_dim
 
     def forward(self, users,topic,subtopic, W, src_len, Candidate_topic,Candidate_subtopic,CandidateNews):
         b, n, t, _ = CandidateNews.shape
         Users = self.UserEncoder(users,topic,subtopic, W, src_len)
 
-        Candidates =  th.zeros(b,n,500,device=self.device)
+        Candidates =  th.zeros(b,n,self.news_size,device=self.device)
         for i in range(b):
             Candidates[i] = self.NewsEncoder(Candidate_topic[i],Candidate_subtopic[i], CandidateNews[i])
         
