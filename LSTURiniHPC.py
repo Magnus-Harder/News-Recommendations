@@ -26,7 +26,7 @@ import pickle as pkl
 
 # Import Scripts
 from Utils import ValidateModel
-from Data_loaders_Small import load_batch, User_vocab,Category_vocab,Subcategory_vocab , User_vali, UserData 
+from Data_loaders_Demo import load_batch, User_vocab,Category_vocab,Subcategory_vocab , User_vali, UserData 
 
 # Load Model
 from LSTURini import LSTURini
@@ -48,7 +48,7 @@ LSTUR_con_module = LSTURini(
 )
 
 # Set hyperparameters for data loading and training
-BatchSize = 200
+BatchSize = 32
 batches =  int(len(UserData)/BatchSize) 
 epochs = 5
 vali_batches = int(len(User_vali))
@@ -56,7 +56,7 @@ vali_batches = int(len(User_vali))
 # Initialize model on device, loss function and optimizer
 model = LSTUR_con_module.to(device)
 loss_fn = nn.CrossEntropyLoss()
-optimizer = optim.Adam(model.parameters(), lr=0.001)
+optimizer = optim.Adam(model.parameters(), lr=0.0001)
 Softmax = nn.Softmax(dim=1)
 
 
@@ -183,5 +183,5 @@ for epoch in range(epochs):
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
 # Saving Training Log
-with open('TrainingLoglr001.pkl', 'wb') as f:
+with open('TrainingLogDemo.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)

@@ -134,6 +134,11 @@ dmypy.json
 # Ignore Files
 torchtext_data/glove.840B.300d.zip
 torchtext_data
+torchtext_data6B
+
+# MAC OS
+.DS_Store
+
 
 # Ignore model files
 *.pt

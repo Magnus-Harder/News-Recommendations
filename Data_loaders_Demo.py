@@ -168,7 +168,7 @@ def Datapoint_to_tensor(User,train=True):
     if train:
         History, User_en, Impressions, Clicked = Datapoint_to_Encodings(User)
         max_impressions_length = 5
-        if random.random() < 0.4:
+        if random.random() < 2:
             User_en = th.tensor(0) # Mask user 
     else:
         max_impressions_length = impressions_length
