@@ -8,7 +8,7 @@ import torchtext
 from torchtext.data.utils import get_tokenizer
 
 Tokenizer = get_tokenizer('basic_english')
-GloVe = torchtext.vocab.GloVe(name='840B', dim=300, cache='torchtext_data')
+GloVe = torchtext.vocab.GloVe(name='6B', dim=300, cache='torchtext_data6B')
 
 #%%
 # Define the title encoder
