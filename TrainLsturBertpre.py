@@ -30,7 +30,7 @@ from Utils import ValidateModel
 from Bertpre import load_batch, User_vocab,Category_vocab,Subcategory_vocab , User_vali, UserData 
 
 # Load Model
-from LSTURiniBert import LSTURbert
+from LSTURBertpre import LSTURbert
 from torch import nn,optim
 device = "cuda" if th.cuda.is_available() else "cpu"
 print(device)
