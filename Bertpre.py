@@ -103,7 +103,7 @@ for idx, (id, Category, SubCategory) in tqdm(enumerate(zip(News.news_id, News.ca
         )
 
     title_dict_train[News_vocab.lookup_indices([id])[0]] = bertout.pooler_output[0]
-    break
+
     Category_dict_train[News_vocab.lookup_indices([id])[0]] = (Category_vocab.__getitem__(Category), Subcategory_vocab.__getitem__(SubCategory))
 
 
