@@ -1,10 +1,11 @@
+#%%
 ##############################
 # Description: Script to Define Batch Loader functions
 
 # Import libraries
 import pandas as pd
 import random
-from tqdm import tqdm
+import sys
 
 # Define Vocabulary for users and topics
 from torchtext import vocab
@@ -12,17 +13,19 @@ from torchtext.data.utils import get_tokenizer
 import torch as th
 
 # Import libraries
-import torch as th
-import pandas as pd
-import random
 from transformers import BertTokenizer, BertModel, BertForMaskedLM,BertForNextSentencePrediction, AdamW
 from tqdm import tqdm
+
+# set Device
+device = th.device("cuda" if th.cuda.is_available() else "cpu")
+
 
 # Import BertTokenizer
 Tokenizer = BertTokenizer.from_pretrained('bert-base-uncased')
 
 # Import BertModel
 Bert = BertModel.from_pretrained('bert-base-uncased')
+Bert.to(device)
 dim_bert = 768
 #################################
 #: Load Data
@@ -92,23 +95,31 @@ title_token_padded = Tokenizer(News.title.values.tolist(),return_tensors='pt',ma
 title_token_padded_vali = Tokenizer(News_vali.title.values.tolist(),return_tensors='pt',max_length=max_title_length, truncation=True, padding='max_length')
 
 
-# Create News_dict with news_id as key and Category and Subcategory and title as value
-for idx, (id, Category, SubCategory) in tqdm(enumerate(zip(News.news_id, News.category, News.subcategory))):
-    with th.no_grad():
-    
+title_token_padded = title_token_padded.to(device)
+title_token_padded_vali = title_token_padded_vali.to(device)
+
+print("Successfully started News_dict",device,file=sys.stdout)
+print("Successfully started News_dict",device,file=sys.stderr)
+
+#%%
+with th.no_grad():
+    # Create News_dict with news_id as key and Category and Subcategory and title as value
+    for idx, (id, Category, SubCategory) in tqdm(enumerate(zip(News.news_id, News.category, News.subcategory))):
+
+        
         bertout = Bert(
             input_ids=title_token_padded['input_ids'][idx].unsqueeze(0),
             attention_mask=title_token_padded['attention_mask'][idx].unsqueeze(0),
             token_type_ids=title_token_padded['token_type_ids'][idx].unsqueeze(0)
         )
 
-    title_dict_train[News_vocab.lookup_indices([id])[0]] = bertout.pooler_output[0]
+        title_dict_train[News_vocab.lookup_indices([id])[0]] = bertout.pooler_output[0]
 
-    Category_dict_train[News_vocab.lookup_indices([id])[0]] = (Category_vocab.__getitem__(Category), Subcategory_vocab.__getitem__(SubCategory))
+        Category_dict_train[News_vocab.lookup_indices([id])[0]] = (Category_vocab.__getitem__(Category), Subcategory_vocab.__getitem__(SubCategory))
 
 
-for idx, (id, Category, SubCategory) in enumerate(zip(News_vali.news_id, News_vali.category, News_vali.subcategory)):
-    with th.no_grad():
+    for idx, (id, Category, SubCategory) in enumerate(zip(News_vali.news_id, News_vali.category, News_vali.subcategory)):
+
 
         bertout = Bert(
             input_ids=title_token_padded_vali['input_ids'][idx].unsqueeze(0),
@@ -116,10 +127,12 @@ for idx, (id, Category, SubCategory) in enumerate(zip(News_vali.news_id, News_va
             token_type_ids=title_token_padded_vali['token_type_ids'][idx].unsqueeze(0)
         )
 
-    title_dict_vali[News_vocab.lookup_indices([id])[0]] = bertout.pooler_output[0]
+        title_dict_vali[News_vocab.lookup_indices([id])[0]] = bertout.pooler_output[0]
 
-    Category_dict_vali[News_vocab.lookup_indices([id])[0]] = (Category_vocab.__getitem__(Category), Subcategory_vocab.__getitem__(SubCategory))
+        Category_dict_vali[News_vocab.lookup_indices([id])[0]] = (Category_vocab.__getitem__(Category), Subcategory_vocab.__getitem__(SubCategory))
 
+print("Successfully created News_dict",file=sys.stdout)
+print("Successfully created News_dict",file=sys.stderr)
 
 # Define Datapoint to tensor
 def Datapoint_to_Encodings(User):
