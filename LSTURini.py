@@ -19,13 +19,14 @@ word_embedding = np.load('MINDdemo_utils/embedding_all.npy')
 #%%
 # Define the title encoder
 class TitleEncoder(nn.Module):
-    def __init__(self, word_dim=300, window_size=3, channel_size=400):
+    def __init__(self, word_dim=300, window_size=3, channel_size=400,attention_dim = 200):
         super(TitleEncoder, self).__init__()
         self.dropout1 = nn.Dropout(0.2)
         self.Conv1d= nn.Conv1d(word_dim,channel_size,kernel_size=3, stride=1, padding=1)
         self.dropout2 = nn.Dropout(0.2)
-        self.v = nn.Parameter(th.rand(channel_size,1))
-        self.vb = nn.Parameter(th.rand(1))
+        self.v = nn.Parameter(th.rand(channel_size,attention_dim))
+        self.vb = nn.Parameter(th.rand(attention_dim))
+        self.q = nn.Parameter(th.rand(attention_dim,1))
         self.Softmax = nn.Softmax(dim=0)
         self.device = "cuda" if th.cuda.is_available() else "cpu"
         # Define word embedding
@@ -34,6 +35,9 @@ class TitleEncoder(nn.Module):
         # Initialize the weights as double
         nn.init.xavier_uniform_(self.Conv1d.weight)
         nn.init.zeros_(self.Conv1d.bias)
+        nn.init.xavier_uniform_(self.v)
+        nn.init.zeros_(self.vb)
+        nn.init.xavier_uniform_(self.q)
 
         
 
@@ -49,8 +53,11 @@ class TitleEncoder(nn.Module):
         seq_len, n_word, channel_size = C.shape
 
         a = th.tanh( C @ self.v + self.vb)
+        a = a @ self.q
         a = a.squeeze(-1)
+
         alpha = self.Softmax(a)
+        
         # shape e: seq_len, channel_size
         e = th.zeros(seq_len, channel_size, device=self.device)
 
@@ -167,3 +174,15 @@ class LSTURini(nn.Module):
         return Scores
 
 
+
+# %%
+title = th.ones((2,10),dtype=th.long)
+
+Enocder = TitleEncoder(300)
+
+Enocder(title)
+
+
+
+
+# %%
