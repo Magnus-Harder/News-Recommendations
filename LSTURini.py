@@ -22,6 +22,12 @@ class TitleEncoder(nn.Module):
         self.vb = nn.Parameter(th.rand(1))
         self.Softmax = nn.Softmax(dim=0)
 
+        # Initialize the weights
+        nn.init.xavier_uniform_(self.Conv1d.weight)
+        nn.init.zeros_(self.Conv1d.bias)
+
+        
+
     def forward(self, W):
 
         W = self.dropout1(W)
@@ -64,6 +70,9 @@ class NewsEncoder(nn.Module):
         self.TitleEncoder = TitleEncoder(word_dim)
         self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
 
+        # Initialize the weights
+
+
     def forward(self, topic,subtopic, W):
         
         topic = self.TopicEncoder(topic, subtopic)
@@ -88,6 +97,12 @@ class UserEncoder(nn.Module):
         self.device = device
         self.dropout = nn.Dropout(0.2)
         self.news_size = word_dim+topic_dim+subtopic_dim
+
+
+        # Define parameter intialization
+        nn.init.zeros_(self.UserEmbedding.weight)
+        #nn.init.xavier_uniform_(self.gru.weight)
+
 
     def forward(self, users,topic,subtopic, W, src_len):
         b, n, t, _ = W.shape
