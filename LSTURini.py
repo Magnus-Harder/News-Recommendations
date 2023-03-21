@@ -13,7 +13,7 @@ GloVe = torchtext.vocab.GloVe(name='840B', dim=300, cache='torchtext_data')
 #%%
 # Define the title encoder
 class TitleEncoder(nn.Module):
-    def __init__(self, word_dim=300, window_size=3, channel_size=300):
+    def __init__(self, word_dim=300, window_size=3, channel_size=400):
         super(TitleEncoder, self).__init__()
         self.dropout1 = nn.Dropout(0.2)
         self.Conv1d= nn.Conv1d(word_dim,channel_size,kernel_size=3, stride=1, padding=1)
@@ -68,18 +68,20 @@ class NewsEncoder(nn.Module):
         super(NewsEncoder, self).__init__()
         self.dropout = nn.Dropout(0.2)
         self.TitleEncoder = TitleEncoder(word_dim)
-        self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
+        #self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
 
         # Initialize the weights
 
 
     def forward(self, topic,subtopic, W):
         
-        topic = self.TopicEncoder(topic, subtopic)
+        #topic = self.TopicEncoder(topic, subtopic)
         title = self.TitleEncoder(W)
 
+        #out = self.dropout(th.hstack([topic, title]))
+        out  = self.dropout(title)
 
-        return self.dropout(th.hstack([topic, title]))
+        return out
 
 
 # Define the user encoder
@@ -89,14 +91,14 @@ class UserEncoder(nn.Module):
         self.seq_len = seq_len
         self.UserEmbedding = nn.Embedding(user_size, user_dim,padding_idx=0)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
-        self.gru = nn.GRU(  input_size = word_dim+topic_dim+subtopic_dim, 
-                            hidden_size = word_dim+topic_dim+subtopic_dim, 
+        self.gru = nn.GRU(  input_size = user_dim, 
+                            hidden_size = user_dim, 
                             num_layers = 1,
                             dropout = 0.2, 
                             batch_first=True)
         self.device = device
         self.dropout = nn.Dropout(0.2)
-        self.news_size = word_dim+topic_dim+subtopic_dim
+        self.news_size = user_dim
 
 
         # Define parameter intialization
@@ -129,7 +131,7 @@ class LSTURini(nn.Module):
         self.UserEncoder = UserEncoder(user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim, device)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
         self.device = device
-        self.news_size = word_dim+topic_dim+subtopic_dim
+        self.news_size = user_dim
 
     def forward(self, users,topic,subtopic, W, src_len, Candidate_topic,Candidate_subtopic,CandidateNews):
         b, n, t, _ = CandidateNews.shape

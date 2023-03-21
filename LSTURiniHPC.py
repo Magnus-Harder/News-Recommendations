@@ -40,9 +40,9 @@ LSTUR_con_module = LSTURini(
     user_dim=400,
     user_size=User_vocab.__len__(),
     topic_size=Category_vocab.__len__(),
-    topic_dim=50,
+    topic_dim=0,
     subtopic_size=Subcategory_vocab.__len__(),
-    subtopic_dim=50,
+    subtopic_dim=0,
     word_dim=300,
     device=device
 )
