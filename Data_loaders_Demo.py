@@ -4,13 +4,38 @@
 # Import libraries
 import pandas as pd
 import random
-
+import pickle as pkl
 # Define Vocabulary for users and topics
 from torchtext import vocab
 from torchtext.data.utils import get_tokenizer
 import torch as th
-from LSTUR import GloVe
+import re
+from nltk.tokenize import RegexpTokenizer
 
+with open('MINDdemo_utils/word_dict_all.pkl', 'rb') as f:
+    word_dict = pkl.load(f)
+
+
+def word_tokenize(sent):
+    """Tokenize a sententence
+
+    Args:
+        sent: the sentence need to be tokenized
+
+    Returns:
+        list: words in the sentence
+    """
+
+    # treat consecutive words or special punctuation as words
+    pat = re.compile(r"[\w]+|[.,!?;|]")
+    if isinstance(sent, str):
+        return pat.findall(sent.lower())
+    else:
+        return []
+    
+tokenizer = RegexpTokenizer(r"\w+")
+
+#%%
 
 # Load tsv file
 News_vali = pd.read_csv('MINDdemo_dev/news.tsv', sep='\t', header=None)
@@ -45,7 +70,7 @@ print(f"Data contains {topic_size} topics and {subtopic_size} subtopics")
 
 
 
-tokenizer = get_tokenizer('basic_english')
+#tokenizer = get_tokenizer('basic_english')
 
 User_vocab = vocab.build_vocab_from_iterator([[id] for id in UserData['user_id']], specials=['<unk>'])
 User_vocab.set_default_index(User_vocab['<unk>'])
@@ -58,7 +83,7 @@ Subcategory_vocab.set_default_index(Subcategory_vocab['<unk>'])
 
 
 # Define Vocabulary for title and abstract
-max_title_length = max([len(tokenizer(title)) for title in News['title']])
+max_title_length = max([len(tokenizer.tokenize(title)) for title in News['title']])
 max_history_length = max([len(history.split(" ")) for history in UserData['history']])
 max_history_length = 50 # Overwrite
 
@@ -129,20 +154,28 @@ def Datapoint_to_Encodings_vali(User):
 # Pack Title
 def pack_Title(title,max_length):
 
-    src_len, _ = title.size()
+    src_len= len(title)
 
-    title_reformated = th.zeros(max_length,300)
+    title_reformated = th.zeros(max_length)
 
-    title_reformated[:src_len,:] = title
+    title_reformated[:src_len] = th.tensor(title)
 
     return title_reformated, src_len
 
 
 # Get Numeric Artikles representation
 def get_Article_Encodings(Artikle):
-
-
-    title = GloVe.get_vecs_by_tokens(tokenizer(Artikle['title']))
+    title = []
+    for word in tokenizer.tokenize(Artikle['title'].lower().strip("\n")):
+        try:
+            if "-" in word:
+                for _ in word.split("-"):
+                    title.append(word_dict[_])
+            else:
+                title.append(word_dict[word])
+        except:
+            print(word)
+            title.append(0)
     
     #Abstract = [tokenizer(abstract) for abstract in Artikle['abstract']]
     Category = Category_vocab.__getitem__(Artikle['category'])
@@ -175,7 +208,7 @@ def Datapoint_to_tensor(User,train=True):
         History, User_en, Impressions, Clicked = Datapoint_to_Encodings_vali(User)
 
 
-    History_tensor = th.zeros(max_history_length,max_title_length,300)
+    History_tensor = th.zeros(max_history_length,max_title_length)
     Category = th.zeros(max_history_length)
     Subcategory = th.zeros(max_history_length)
     history_len = min(len(History),max_history_length)
@@ -183,7 +216,7 @@ def Datapoint_to_tensor(User,train=True):
     for idx,article in enumerate(History[-history_len:]):
         Category[idx], Subcategory[idx], History_tensor[idx], _ = News_tensors[article.item()]
 
-    Impressions_tensor = th.zeros(max_impressions_length,max_title_length,300)
+    Impressions_tensor = th.zeros(max_impressions_length,max_title_length)
     Category_Impressions = th.zeros(max_impressions_length)
     Subcategory_Impressions = th.zeros(max_impressions_length)
     Impressions_len = len(Impressions)
@@ -234,10 +267,12 @@ def load_batch(User, batch_size, device='cpu',train=True, shuffle=False):
             Clicked.append(Clicked_)
         
         User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked = map(th.stack, [User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked])
-        User_en, Category, Subcategory, history_len, Category_Impressions, Subcategory_Impressions, Impressions_len, Clicked = map(lambda x: x.long(), [User_en, Category, Subcategory, history_len, Category_Impressions, Subcategory_Impressions, Impressions_len, Clicked])
-        yield User_en.to(device), Category.to(device), Subcategory.to(device), History_tensor.to(device), history_len.to(device), Category_Impressions.to(device), Subcategory_Impressions.to(device), Impressions_tensor.to(device), Impressions_len.to(device), Clicked.to(device)
 
-        #yield User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked
+        # Map tensors to long
+        User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked = map(lambda x: x.long(), [User_en, Category, Subcategory, History_tensor, history_len, Category_Impressions, Subcategory_Impressions, Impressions_tensor, Impressions_len, Clicked])
+
+        #User_en, Category, Subcategory, history_len, Category_Impressions, Subcategory_Impressions, Impressions_len, Clicked = map(lambda x: x.long(), [User_en, Category, Subcategory, history_len, Category_Impressions, Subcategory_Impressions, Impressions_len, Clicked])
+        yield User_en.to(device), Category.to(device), Subcategory.to(device), History_tensor.to(device), history_len.to(device), Category_Impressions.to(device), Subcategory_Impressions.to(device), Impressions_tensor.to(device), Impressions_len.to(device), Clicked.to(device)
 
 
 # %%

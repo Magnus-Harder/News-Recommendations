@@ -1,14 +1,20 @@
 #%%
 # Import packages
-
+import numpy as np
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 import torchtext
+import pickle as pkl
 from torchtext.data.utils import get_tokenizer
 
-Tokenizer = get_tokenizer('basic_english')
-GloVe = torchtext.vocab.GloVe(name='840B', dim=300, cache='torchtext_data')
+with open('MINDdemo_utils/word_dict_all.pkl', 'rb') as f:
+    word_dict = pkl.load(f)
+
+word_embedding = np.load('MINDdemo_utils/embedding_all.npy')
+
+
+
 
 #%%
 # Define the title encoder
@@ -22,14 +28,18 @@ class TitleEncoder(nn.Module):
         self.vb = nn.Parameter(th.rand(1))
         self.Softmax = nn.Softmax(dim=0)
 
-        # Initialize the weights
+        # Define word embedding
+        self.word_embedding = nn.Embedding.from_pretrained(th.tensor(word_embedding,dtype=th.float32), freeze=False, padding_idx=0)
+
+        # Initialize the weights as double
         nn.init.xavier_uniform_(self.Conv1d.weight)
         nn.init.zeros_(self.Conv1d.bias)
 
         
 
-    def forward(self, W):
+    def forward(self, encoded_title):
 
+        W = self.word_embedding(encoded_title)
         W = self.dropout1(W)
 
         C = th.transpose(self.Conv1d(th.transpose(W,1,-1)),1,-1)
@@ -45,20 +55,20 @@ class TitleEncoder(nn.Module):
 
 
 # Define the topic encoder
-class TopicEncoder(nn.Module):
-    def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size):
-        super(TopicEncoder, self).__init__()
-        self.topic_embed = nn.Embedding(topic_size, topic_dim, padding_idx=0)
-        self.subtopic_embed = nn.Embedding(subtopic_size, subtopic_dim, padding_idx=0)
+# class TopicEncoder(nn.Module):
+#     def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size):
+#         super(TopicEncoder, self).__init__()
+#         self.topic_embed = nn.Embedding(topic_size, topic_dim, padding_idx=0)
+#         self.subtopic_embed = nn.Embedding(subtopic_size, subtopic_dim, padding_idx=0)
         
 
-    def forward(self, topic, subtopic):
+#     def forward(self, topic, subtopic):
         
-        topic = self.topic_embed(topic)
-        subtopic = self.subtopic_embed(subtopic)
+#         topic = self.topic_embed(topic)
+#         subtopic = self.subtopic_embed(subtopic)
 
 
-        return th.hstack([topic, subtopic])
+#         return th.hstack([topic, subtopic])
 
 
 
@@ -107,7 +117,7 @@ class UserEncoder(nn.Module):
 
 
     def forward(self, users,topic,subtopic, W, src_len):
-        b, n, t, _ = W.shape
+        b, n, t, = W.shape
         
         news_embed = th.zeros(b,n,self.news_size,device=self.device)
         for i in range(b):
@@ -134,7 +144,8 @@ class LSTURini(nn.Module):
         self.news_size = user_dim
 
     def forward(self, users,topic,subtopic, W, src_len, Candidate_topic,Candidate_subtopic,CandidateNews):
-        b, n, t, _ = CandidateNews.shape
+        b, n, t,= CandidateNews.shape
+
         Users = self.UserEncoder(users,topic,subtopic, W, src_len)
 
         Candidates =  th.zeros(b,n,self.news_size,device=self.device)
