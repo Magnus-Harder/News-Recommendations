@@ -27,7 +27,7 @@ class TitleEncoder(nn.Module):
         self.v = nn.Parameter(th.rand(channel_size,1))
         self.vb = nn.Parameter(th.rand(1))
         self.Softmax = nn.Softmax(dim=0)
-
+        self.device = "cuda" if th.cuda.is_available() else "cpu"
         # Define word embedding
         self.word_embedding = nn.Embedding.from_pretrained(th.tensor(word_embedding,dtype=th.float32), freeze=False, padding_idx=0)
 
@@ -39,19 +39,26 @@ class TitleEncoder(nn.Module):
 
     def forward(self, encoded_title):
 
+
         W = self.word_embedding(encoded_title)
-        W = self.dropout1(W)
+        W = self.dropout1(W)        
 
         C = th.transpose(self.Conv1d(th.transpose(W,1,-1)),1,-1)
         C = self.dropout2(C)
 
-        #*
-        a = th.tanh( C @ self.v + self.vb) 
+        seq_len, n_word, channel_size = C.shape
+
+        a = th.tanh( C @ self.v + self.vb)
+        a = a.squeeze(-1)
         alpha = self.Softmax(a)
+        # shape e: seq_len, channel_size
+        e = th.zeros(seq_len, channel_size, device=self.device)
 
-        e = th.transpose(alpha,1,-1) @ C
+        for i in range(seq_len):
+            e[i] = alpha[i] @ C[i]
 
-        return e[:,0,:]
+
+        return e
 
 
 # Define the topic encoder
