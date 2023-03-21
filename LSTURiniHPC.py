@@ -183,5 +183,5 @@ for epoch in range(epochs):
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
 # Saving Training Log
-with open('TrainingLogDemo.pkl', 'wb') as f:
+with open('IniLog.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)

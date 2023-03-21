@@ -83,7 +83,7 @@ class UserEncoder(nn.Module):
         self.gru = nn.GRU(  input_size = word_dim+topic_dim+subtopic_dim, 
                             hidden_size = word_dim+topic_dim+subtopic_dim, 
                             num_layers = 1,
-                            # dropout = 0.2, 
+                            dropout = 0.2, 
                             batch_first=True)
         self.device = device
         self.dropout = nn.Dropout(0.2)
@@ -101,7 +101,8 @@ class UserEncoder(nn.Module):
         packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
         packed_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
 
-        user_s = self.dropout(hidden[-1])
+        # Batch, User
+        user_s = self.dropout(hidden[0])
          
         return user_s
 
