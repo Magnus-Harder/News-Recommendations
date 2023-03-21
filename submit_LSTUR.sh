@@ -5,7 +5,7 @@
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -n 1
-#BSUB -R "rusage[mem=16G]"
+#BSUB -R "rusage[mem=12G]"
 #BSUB -R "span[hosts=1]"
 #BSUB -W 24:00
 #BSUB -N
