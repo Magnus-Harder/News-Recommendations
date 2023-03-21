@@ -1,11 +1,11 @@
 #!/bin/sh
-#BSUB -J LSTURiniDemo
-#BSUB -o LSTURiniDemo_%J.out
-#BSUB -e LSTURiniDemo_%J.err
+#BSUB -J AttentionTest
+#BSUB -o AttentionTest_%J.out
+#BSUB -e AttentionTest_%J.err
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -n 1
-#BSUB -R "rusage[mem=12G]"
+#BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"
 #BSUB -W 24:00
 #BSUB -N
