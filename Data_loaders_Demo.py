@@ -85,7 +85,7 @@ Subcategory_vocab.set_default_index(Subcategory_vocab['<unk>'])
 # Define Vocabulary for title and abstract
 max_title_length = max([len(tokenizer.tokenize(title)) for title in News['title']])
 max_history_length = max([len(history.split(" ")) for history in UserData['history']])
-max_history_length = 50 # Overwrite
+max_history_length = 2 # Overwrite
 
 impressions_length = max([len(impressions.split(" ")) for impressions in User_vali['impressions']])
 print(impressions_length)

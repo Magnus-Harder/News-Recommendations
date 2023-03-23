@@ -118,7 +118,7 @@ class UserEncoder(nn.Module):
         self.gru = nn.GRU(  input_size = user_dim, 
                             hidden_size = user_dim, 
                             num_layers = 1,
-                            dropout = 0.2, 
+                            #dropout = 0.2, 
                             batch_first=True)
         self.device = device
         self.dropout = nn.Dropout(0.2)
@@ -138,12 +138,16 @@ class UserEncoder(nn.Module):
             news_embed[i] = self.NewsEncoder(topic[i],subtopic[i], W[i])
 
         user_embed = self.UserEmbedding(users)
+        
+        out,hidden = self.gru(news_embed, user_embed.unsqueeze(0))
+
+        
         # src_len_cpu = src_len.cpu()
-        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
-        packed_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
+        #packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
+        #acked_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
 
         # Batch, User
-        user_s = self.dropout(hidden[0])
+        user_s = self.dropout(hidden.squeeze(0))
          
         return user_s
 
@@ -176,13 +180,38 @@ class LSTURini(nn.Module):
 
 
 # %%
-title = th.ones((2,10),dtype=th.long)
 
-Enocder = TitleEncoder(300)
+# # Difine test gru model
 
-Enocder(title)
+# class GRU_test(nn.Module):
+#     def __init__(self):
+#         super(GRU_test, self).__init__()
+#         self.gru = nn.GRU(  input_size = 10, 
+#                             hidden_size = 10, 
+#                             num_layers = 1,
+#                             dropout = 0.2, 
+#                             batch_first=True)
+#         self.dropout = nn.Dropout(0.2)
+    
+#     def forward(self, x):
+#         out, hidden = self.gru(x)
+
+#         return out, hidden
 
 
 
 
+
+# # %%
+
+
+# gru = GRU_test()
+
+# x = th.randn(5,20,10)
+
+# out, hidden = gru(x)
+
+# print(out.shape)
+# # %%
+# hidden.squeeze(0)[0]
 # %%
