@@ -1,7 +1,7 @@
 #!/bin/sh
-#BSUB -J AttentionTest
-#BSUB -o AttentionTest_%J.out
-#BSUB -e AttentionTest_%J.err
+#BSUB -J RandomPos
+#BSUB -o RandomPos_%J.out
+#BSUB -e RandomPos_%J.err
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -n 1
