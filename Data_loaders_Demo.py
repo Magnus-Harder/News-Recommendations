@@ -120,12 +120,12 @@ def Datapoint_to_Encodings(User):
     Clicked = [1,0,0,0,0]
 
     # Shuffle
-    shuffled_index = [0,1,2,3,4]
-    random.shuffle(shuffled_index)
+    # shuffled_index = [0,1,2,3,4]
+    # random.shuffle(shuffled_index)
 
 
-    Impressions = [Impressions[i] for i in shuffled_index]
-    Clicked = [Clicked[i] for i in shuffled_index]
+    # Impressions = [Impressions[i] for i in shuffled_index]
+    # Clicked = [Clicked[i] for i in shuffled_index]
 
 
     # Convert to tensor
@@ -201,7 +201,7 @@ def Datapoint_to_tensor(User,train=True):
     if train:
         History, User_en, Impressions, Clicked = Datapoint_to_Encodings(User)
         max_impressions_length = 5
-        if random.random() < 0.5:
+        if random.random() < 0:
             User_en = th.tensor(0) # Mask user 
     else:
         max_impressions_length = impressions_length
@@ -275,4 +275,3 @@ def load_batch(User, batch_size, device='cpu',train=True, shuffle=False):
         yield User_en.to(device), Category.to(device), Subcategory.to(device), History_tensor.to(device), history_len.to(device), Category_Impressions.to(device), Subcategory_Impressions.to(device), Impressions_tensor.to(device), Impressions_len.to(device), Clicked.to(device)
 
 
-# %%
