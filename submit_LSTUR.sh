@@ -1,7 +1,7 @@
 #!/bin/sh
-#BSUB -J RandomPos
-#BSUB -o RandomPos_%J.out
-#BSUB -e RandomPos_%J.err
+#BSUB -J LSTURini
+#BSUB -o LSTURini_%J.out
+#BSUB -e LSTURini_%J.err
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -n 1

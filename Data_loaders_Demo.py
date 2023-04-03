@@ -117,15 +117,15 @@ def Datapoint_to_Encodings(User):
         for _ in range(4):
             Impressions.append(random.choice(Negative))
 
-    Clicked = [0,0,1,0,0]
+    Clicked = [1,0,0,0,0]
 
     # Shuffle
-    # shuffled_index = [0,1,2,3,4]
-    # random.shuffle(shuffled_index)
+    shuffled_index = [0,1,2,3,4]
+    random.shuffle(shuffled_index)
 
 
-    # Impressions = [Impressions[i] for i in shuffled_index]
-    # Clicked = [Clicked[i] for i in shuffled_index]
+    Impressions = [Impressions[i] for i in shuffled_index]
+    Clicked = [Clicked[i] for i in shuffled_index]
 
 
     # Convert to tensor
