@@ -139,15 +139,15 @@ class UserEncoder(nn.Module):
 
         user_embed = self.UserEmbedding(users)
         
-        out,hidden = self.gru(news_embed, user_embed.unsqueeze(0))
+        #out,hidden = self.gru(news_embed, user_embed.unsqueeze(0))
 
         
-        # src_len_cpu = src_len.cpu()
-        #packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
-        #acked_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
+        src_len_cpu = src_len.cpu()
+        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
+        packed_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
 
         # Batch, User
-        user_s = self.dropout(hidden.squeeze(0))
+        user_s = self.dropout(hidden[0])
          
         return user_s
 
