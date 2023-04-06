@@ -103,7 +103,7 @@ class NewsEncoder(nn.Module):
     def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device="cpu"):
         super(NewsEncoder, self).__init__()
         self.dropout = nn.Dropout(dropout)
-        self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
+        self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device)
         #self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
 
         # Initialize the weights
@@ -129,7 +129,7 @@ class UserEncoder(nn.Module):
         self.UserEmbedding = nn.Embedding(user_size, gru_unit,padding_idx=0)
         
         # News Encoder
-        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
+        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device)
         
         # GRU
         self.gru = nn.GRU(  input_size = filter_num, 
