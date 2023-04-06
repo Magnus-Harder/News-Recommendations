@@ -19,7 +19,7 @@ word_embedding = np.load('MINDdemo_utils/embedding_all.npy')
 #%%
 # Define the title encoder
 class TitleEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit , device="cpu"):
         super(TitleEncoder, self).__init__()
 
         # Dropout Layers
@@ -36,7 +36,7 @@ class TitleEncoder(nn.Module):
         self.Softmax = nn.Softmax(dim=0)
         
         # Define device
-        self.device = "cuda" if th.cuda.is_available() else "cpu"
+        self.device = device
 
         # Define word embedding
         self.word_embedding = nn.Embedding.from_pretrained(th.tensor(word_embedding,dtype=th.float32), freeze=False, padding_idx=0)
@@ -100,7 +100,7 @@ class TitleEncoder(nn.Module):
 
 # Define News Encoder
 class NewsEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device="cpu"):
         super(NewsEncoder, self).__init__()
         self.dropout = nn.Dropout(dropout)
         self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
@@ -177,10 +177,10 @@ class LSTURini(nn.Module):
         super(LSTURini, self).__init__()
 
         # User Encoder
-        self.UserEncoder = UserEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size)
+        self.UserEncoder = UserEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, device)
         
         # News Encoder
-        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
+        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device)
         
         # Device
         self.device = device
