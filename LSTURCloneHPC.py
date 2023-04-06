@@ -50,6 +50,7 @@ LSTUR_con_module = LSTURini(
     windows_size = hparams['model']['window_size'],
     gru_unit = hparams['model']['gru_unit'],
     user_size = User_vocab.__len__(),
+    device = device
 )
 
 # Set hyperparameters for data loading and training
