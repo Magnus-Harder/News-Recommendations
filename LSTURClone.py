@@ -19,7 +19,7 @@ word_embedding = np.load('MINDdemo_utils/embedding_all.npy')
 #%%
 # Define the title encoder
 class TitleEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit):
         super(TitleEncoder, self).__init__()
 
         # Dropout Layers
@@ -27,7 +27,7 @@ class TitleEncoder(nn.Module):
         self.dropout2 = nn.Dropout(dropout)
         
         # Convoilutional Layer
-        self.Conv1d= nn.Conv1d(word_emb_dim, filter_num, kernel_size=3, stride=1, padding=1)
+        self.Conv1d= nn.Conv1d(word_emb_dim, filter_num, kernel_size=windows_size, stride=1, padding=1)
         
         # Attention Layer
         self.v = nn.Parameter(th.rand(filter_num,attention_dim))
@@ -52,14 +52,16 @@ class TitleEncoder(nn.Module):
 
     def forward(self, encoded_title):
 
-
+        # Convert the encoded title to word embedding
         W = self.word_embedding(encoded_title)
         W = self.dropout1(W)        
 
+        # Convolutional Layer
         C = th.transpose(self.Conv1d(th.transpose(W,1,-1)),1,-1)
-        C = self.dropout2(C)
         C = F.relu(C)
+        C = self.dropout2(C)
         
+        # Attention Layer
         seq_len, n_word, channel_size = C.shape
 
         a = th.tanh( C @ self.v + self.vb)
@@ -79,20 +81,20 @@ class TitleEncoder(nn.Module):
 
 
 #Define the topic encoder
-class TopicEncoder(nn.Module):
-    def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size):
-        super(TopicEncoder, self).__init__()
-        self.topic_embed = nn.Embedding(topic_size, topic_dim, padding_idx=0)
-        self.subtopic_embed = nn.Embedding(subtopic_size, subtopic_dim, padding_idx=0)
+# class TopicEncoder(nn.Module):
+#     def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size):
+#         super(TopicEncoder, self).__init__()
+#         self.topic_embed = nn.Embedding(topic_size, topic_dim, padding_idx=0)
+#         self.subtopic_embed = nn.Embedding(subtopic_size, subtopic_dim, padding_idx=0)
         
 
-    def forward(self, topic, subtopic):
+#     def forward(self, topic, subtopic):
         
-        topic = self.topic_embed(topic)
-        subtopic = self.subtopic_embed(subtopic)
+#         topic = self.topic_embed(topic)
+#         subtopic = self.subtopic_embed(subtopic)
 
 
-        return th.hstack([topic, subtopic])
+#         return th.hstack([topic, subtopic])
 
 
 
@@ -100,7 +102,7 @@ class TopicEncoder(nn.Module):
 class NewsEncoder(nn.Module):
     def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit):
         super(NewsEncoder, self).__init__()
-        self.dropout = nn.Dropout(0.2)
+        self.dropout = nn.Dropout(dropout)
         self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
         #self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
 
@@ -120,24 +122,31 @@ class NewsEncoder(nn.Module):
 
 # Define the user encoder
 class UserEncoder(nn.Module):
-    def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit,user_size, device="cpu"):
         super(UserEncoder, self).__init__()
-        self.seq_len = seq_len
-        self.UserEmbedding = nn.Embedding(user_size, user_dim,padding_idx=0)
-        self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
-        self.gru = nn.GRU(  input_size = user_dim, 
-                            hidden_size = user_dim, 
-                            num_layers = 1,
-                            #dropout = 0.2, 
-                            batch_first=True)
-        self.device = device
-        self.dropout = nn.Dropout(0.2)
-        self.news_size = user_dim
 
+        # User embedding
+        self.UserEmbedding = nn.Embedding(user_size, gru_unit,padding_idx=0)
+        
+        # News Encoder
+        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
+        
+        # GRU
+        self.gru = nn.GRU(  input_size = filter_num, 
+                            hidden_size = gru_unit, 
+                            num_layers = 1,
+                            batch_first=True)
+        
+        # Dropout and device
+        self.device = device
+        self.dropout = nn.Dropout(dropout)
 
         # Define parameter intialization
         nn.init.zeros_(self.UserEmbedding.weight)
         #nn.init.xavier_uniform_(self.gru.weight)
+
+        # Save news embedding size
+        self.news_size = filter_num
 
 
     def forward(self, users,topic,subtopic, W, src_len):
@@ -157,19 +166,27 @@ class UserEncoder(nn.Module):
         packed_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
 
         # Batch, User
-        user_s = self.dropout(hidden[0])
+        user_s = hidden.squeeze(0)
          
         return user_s
 
 
 # Define the LSTUR-ini model
 class LSTURini(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, device="cpu"):
         super(LSTURini, self).__init__()
-        self.UserEncoder = UserEncoder(user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim, device)
-        self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
+
+        # User Encoder
+        self.UserEncoder = UserEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size)
+        
+        # News Encoder
+        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
+        
+        # Device
         self.device = device
-        self.news_size = user_dim
+
+        # Save news embedding size
+        self.news_size = filter_num
 
     def forward(self, users,topic,subtopic, W, src_len, Candidate_topic,Candidate_subtopic,CandidateNews):
         b, n, t,= CandidateNews.shape
