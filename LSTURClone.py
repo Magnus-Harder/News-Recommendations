@@ -162,7 +162,7 @@ class UserEncoder(nn.Module):
 
         
         src_len_cpu = src_len.cpu()
-        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
+        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len, batch_first=True, enforce_sorted=False).to(self.device)
         packed_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
 
         # Batch, User
