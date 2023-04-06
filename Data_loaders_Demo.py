@@ -174,7 +174,6 @@ def get_Article_Encodings(Artikle):
             else:
                 title.append(word_dict[word])
         except:
-            print(word)
             title.append(0)
     
     #Abstract = [tokenizer(abstract) for abstract in Artikle['abstract']]

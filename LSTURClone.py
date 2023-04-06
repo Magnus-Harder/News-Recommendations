@@ -19,16 +19,25 @@ word_embedding = np.load('MINDdemo_utils/embedding_all.npy')
 #%%
 # Define the title encoder
 class TitleEncoder(nn.Module):
-    def __init__(self, word_dim=300, window_size=3, channel_size=400,attention_dim = 200):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size):
         super(TitleEncoder, self).__init__()
-        self.dropout1 = nn.Dropout(0.2)
-        self.Conv1d= nn.Conv1d(word_dim,channel_size,kernel_size=3, stride=1, padding=1)
-        self.dropout2 = nn.Dropout(0.2)
-        self.v = nn.Parameter(th.rand(channel_size,attention_dim))
+
+        # Dropout Layers
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+        
+        # Convoilutional Layer
+        self.Conv1d= nn.Conv1d(word_emb_dim, filter_num, kernel_size=3, stride=1, padding=1)
+        
+        # Attention Layer
+        self.v = nn.Parameter(th.rand(filter_num,attention_dim))
         self.vb = nn.Parameter(th.rand(attention_dim))
         self.q = nn.Parameter(th.rand(attention_dim,1))
         self.Softmax = nn.Softmax(dim=0)
+        
+        # Define device
         self.device = "cuda" if th.cuda.is_available() else "cpu"
+
         # Define word embedding
         self.word_embedding = nn.Embedding.from_pretrained(th.tensor(word_embedding,dtype=th.float32), freeze=False, padding_idx=0)
 
@@ -50,7 +59,7 @@ class TitleEncoder(nn.Module):
         C = th.transpose(self.Conv1d(th.transpose(W,1,-1)),1,-1)
         C = self.dropout2(C)
         C = F.relu(C)
-
+        
         seq_len, n_word, channel_size = C.shape
 
         a = th.tanh( C @ self.v + self.vb)
@@ -69,30 +78,30 @@ class TitleEncoder(nn.Module):
         return e
 
 
-# Define the topic encoder
-# class TopicEncoder(nn.Module):
-#     def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size):
-#         super(TopicEncoder, self).__init__()
-#         self.topic_embed = nn.Embedding(topic_size, topic_dim, padding_idx=0)
-#         self.subtopic_embed = nn.Embedding(subtopic_size, subtopic_dim, padding_idx=0)
+#Define the topic encoder
+class TopicEncoder(nn.Module):
+    def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size):
+        super(TopicEncoder, self).__init__()
+        self.topic_embed = nn.Embedding(topic_size, topic_dim, padding_idx=0)
+        self.subtopic_embed = nn.Embedding(subtopic_size, subtopic_dim, padding_idx=0)
         
 
-#     def forward(self, topic, subtopic):
+    def forward(self, topic, subtopic):
         
-#         topic = self.topic_embed(topic)
-#         subtopic = self.subtopic_embed(subtopic)
+        topic = self.topic_embed(topic)
+        subtopic = self.subtopic_embed(subtopic)
 
 
-#         return th.hstack([topic, subtopic])
+        return th.hstack([topic, subtopic])
 
 
 
 # Define News Encoder
 class NewsEncoder(nn.Module):
-    def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit):
         super(NewsEncoder, self).__init__()
         self.dropout = nn.Dropout(0.2)
-        self.TitleEncoder = TitleEncoder(word_dim)
+        self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit)
         #self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
 
         # Initialize the weights
@@ -155,7 +164,7 @@ class UserEncoder(nn.Module):
 
 # Define the LSTUR-ini model
 class LSTURini(nn.Module):
-    def __init__(self, user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim=300, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit):
         super(LSTURini, self).__init__()
         self.UserEncoder = UserEncoder(user_dim, user_size,seq_len,topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim, device)
         self.NewsEncoder = NewsEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size, word_dim)
@@ -179,40 +188,5 @@ class LSTURini(nn.Module):
         return Scores
 
 
-
 # %%
-
-# # Difine test gru model
-
-# class GRU_test(nn.Module):
-#     def __init__(self):
-#         super(GRU_test, self).__init__()
-#         self.gru = nn.GRU(  input_size = 10, 
-#                             hidden_size = 10, 
-#                             num_layers = 1,
-#                             dropout = 0.2, 
-#                             batch_first=True)
-#         self.dropout = nn.Dropout(0.2)
-    
-#     def forward(self, x):
-#         out, hidden = self.gru(x)
-
-#         return out, hidden
-
-
-
-
-
-# # %%
-
-
-# gru = GRU_test()
-
-# x = th.randn(5,20,10)
-
-# out, hidden = gru(x)
-
-# print(out.shape)
-# # %%
-# hidden.squeeze(0)[0]
-# %%
+#
