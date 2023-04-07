@@ -144,7 +144,7 @@ class NewsDataset(Dataset):
         
         # Pad labels
         def pad_labels(x):
-            return x + [-1]*(self.max_impressions_length - len(x))
+            return x + [0]*(self.max_impressions_length - len(x))
         
        
         self.user_data['labels'] = self.user_data['labels'].apply(pad_labels)
