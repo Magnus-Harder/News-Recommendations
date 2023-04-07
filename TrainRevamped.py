@@ -40,7 +40,7 @@ TrainData = NewsDataset(user_file_train, news_file_train, word_dict_file,train=T
                         max_history_length=hparams['data']['his_size'],
                         )
 
-TrainDataLoader = DataLoader(TrainData, batch_size=32, shuffle=False)
+TrainDataLoader = DataLoader(TrainData, batch_size=32, shuffle=True)
 
 
 TestData = NewsDataset(user_file_test, news_file_test, word_dict_file,train=False, device = device,
