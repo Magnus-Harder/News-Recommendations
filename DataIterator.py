@@ -182,8 +182,8 @@ class NewsDataset(Dataset):
             negative_idx = np.random.choice(negative_idx, size=4*len(positive_idx), replace=False) if len(negative_idx) > 4*len(positive_idx) else np.random.choice(negative_idx, size=4*len(positive_idx), replace=True)
             negative_idx = np.split(negative_idx, len(positive_idx))    
 
-            impressions_sampled = np.hstack([np.reshape(positive_idx, (-1,1)), negative_idx],dtype=np.int32)
-
+            impressions_sampled = np.hstack([np.reshape(positive_idx, (-1,1)), negative_idx])
+	    impressions_sampled = impressions_sampled.astype('int32')
             
             # Get impressions as title and abstract
             impressions_title = np.zeros((self.max_positive, 5, self.max_title_length), dtype=np.int32)

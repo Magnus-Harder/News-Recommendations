@@ -64,7 +64,7 @@ LSTUR_con_module = LSTURini(
     filter_num = hparams['model']['filter_num'],
     windows_size = hparams['model']['window_size'],
     gru_unit = hparams['model']['gru_unit'],
-    user_size = TrainData.userid_dict.__len__(),
+    user_size = TrainData.userid_dict.__len__() + 1,
     word_vectors = word_embedding,
     device = device
 )
