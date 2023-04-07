@@ -9,7 +9,7 @@ import random
 from torchtext import vocab
 from torchtext.data.utils import get_tokenizer
 import torch as th
-from LSTUR import GloVe
+from Models.LSTUR import GloVe
 
 
 

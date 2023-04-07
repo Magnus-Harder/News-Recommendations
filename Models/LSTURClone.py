@@ -4,22 +4,11 @@ import numpy as np
 import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
-import torchtext
-import pickle as pkl
-from torchtext.data.utils import get_tokenizer
-
-with open('MINDdemo_utils/word_dict_all.pkl', 'rb') as f:
-    word_dict = pkl.load(f)
-
-word_embedding = np.load('MINDdemo_utils/embedding_all.npy')
 
 
-
-
-#%%
 # Define the title encoder
 class TitleEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit , device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit , word_vectors, device="cpu"):
         super(TitleEncoder, self).__init__()
 
         # Dropout Layers
@@ -39,7 +28,7 @@ class TitleEncoder(nn.Module):
         self.device = device
 
         # Define word embedding
-        self.word_embedding = nn.Embedding.from_pretrained(th.tensor(word_embedding,dtype=th.float32), freeze=False, padding_idx=0)
+        self.word_embedding = nn.Embedding.from_pretrained(th.tensor(word_vectors,dtype=th.float32), freeze=False, padding_idx=0)
 
         # Initialize the weights as double
         nn.init.xavier_uniform_(self.Conv1d.weight)
@@ -100,21 +89,19 @@ class TitleEncoder(nn.Module):
 
 # Define News Encoder
 class NewsEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device="cpu"):
         super(NewsEncoder, self).__init__()
         self.dropout = nn.Dropout(dropout)
-        self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device)
+        self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device)
         #self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
 
         # Initialize the weights
 
 
-    def forward(self, topic,subtopic, W):
+    def forward(self, news_titles):
         
-        #topic = self.TopicEncoder(topic, subtopic)
-        title = self.TitleEncoder(W)
+        title = self.TitleEncoder(news_titles)
 
-        #out = self.dropout(th.hstack([topic, title]))
         out  = self.dropout(title)
 
         return out
@@ -122,14 +109,14 @@ class NewsEncoder(nn.Module):
 
 # Define the user encoder
 class UserEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit,user_size, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit,user_size, word_vectors, device="cpu"):
         super(UserEncoder, self).__init__()
 
         # User embedding
         self.UserEmbedding = nn.Embedding(user_size, gru_unit,padding_idx=0)
         
         # News Encoder
-        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device)
+        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device)
         
         # GRU
         self.gru = nn.GRU(  input_size = filter_num, 
@@ -149,20 +136,17 @@ class UserEncoder(nn.Module):
         self.news_size = filter_num
 
 
-    def forward(self, users,topic,subtopic, W, src_len):
-        b, n, t, = W.shape
+    def forward(self, user_id, history_title, history_length):
+        b, n, t, = history_title.shape
         
         news_embed = th.zeros(b,n,self.news_size,device=self.device)
         for i in range(b):
-            news_embed[i] = self.NewsEncoder(topic[i],subtopic[i], W[i])
+            news_embed[i] = self.NewsEncoder(history_title[i])
 
-        user_embed = self.UserEmbedding(users)
+        user_embed = self.UserEmbedding(user_id)
         
-        #out,hidden = self.gru(news_embed, user_embed.unsqueeze(0))
-
         
-        src_len_cpu = src_len.cpu()
-        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, src_len.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
+        packed_news = nn.utils.rnn.pack_padded_sequence(news_embed, history_length.cpu(), batch_first=True, enforce_sorted=False).to(self.device)
         packed_outputs,hidden = self.gru(packed_news, user_embed.unsqueeze(0))
 
         # Batch, User
@@ -173,14 +157,14 @@ class UserEncoder(nn.Module):
 
 # Define the LSTUR-ini model
 class LSTURini(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, word_vectors ,device="cpu"):
         super(LSTURini, self).__init__()
 
         # User Encoder
-        self.UserEncoder = UserEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, device)
+        self.UserEncoder = UserEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, word_vectors, device)
         
         # News Encoder
-        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, device)
+        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device)
         
         # Device
         self.device = device
@@ -188,19 +172,29 @@ class LSTURini(nn.Module):
         # Save news embedding size
         self.news_size = filter_num
 
-    def forward(self, users,topic,subtopic, W, src_len, Candidate_topic,Candidate_subtopic,CandidateNews):
-        b, n, t,= CandidateNews.shape
-
-        Users = self.UserEncoder(users,topic,subtopic, W, src_len)
-
-        Candidates =  th.zeros(b,n,self.news_size,device=self.device)
-        for i in range(b):
-            Candidates[i] = self.NewsEncoder(Candidate_topic[i],Candidate_subtopic[i], CandidateNews[i])
+    def forward(self, user_id, history_title, history_length, impressions_title, n_positive):
         
+        # User embedding
+        Users = self.UserEncoder(user_id, history_title, history_length)
 
-        Scores = th.zeros(b,n,device=self.device)
-        for i in range(b):
-            Scores[i] = Candidates[i] @ Users[i]
+        if self.training:
+            b, p , n, t= impressions_title.shape
+            Scores = th.zeros(b,p,n,device=self.device)
+
+            for i in range(b):
+                for j in range(n_positive[i]):
+                    Scores[i,j] = self.NewsEncoder(impressions_title[i,j]) @ Users[i]
+
+        else:
+            b, n, t = impressions_title.shape
+            Candidates =  th.zeros(b,n,self.news_size,device=self.device)
+            for i in range(b):
+                Candidates[i] = self.NewsEncoder(impressions_title[i])
+            
+
+            Scores = th.zeros(b,n,device=self.device)
+            for i in range(b):
+                Scores[i] = Candidates[i] @ Users[i]
 
         return Scores
 

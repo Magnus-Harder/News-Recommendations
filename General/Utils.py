@@ -48,9 +48,7 @@ class ValidateModel:
     #     return roc_auc_score(y_true, y_score, multi_class='ovo', labels = np.arange(0,n_classes))
     
     @staticmethod
-    def ROC_AUC(y_true, y_score,Impression_len):
-        y_true_binary = th.zeros(Impression_len)
-        y_true_binary[y_true] = 1
+    def ROC_AUC(y_score, y_true_binary):
 
         return roc_auc_score(y_true_binary, y_score)
 

@@ -27,7 +27,7 @@ import pickle as pkl
 
 # Import Scripts
 from Utils import ValidateModel
-from Data_loaders_Bert import load_batch, User_vocab,Category_vocab,Subcategory_vocab , User_vali, UserData 
+from Bert.Data_loaders_Bert import load_batch, User_vocab,Category_vocab,Subcategory_vocab , User_vali, UserData 
 
 # Load Model
 from LSTURiniBert import LSTURbert

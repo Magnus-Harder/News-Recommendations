@@ -273,4 +273,7 @@ def load_batch(User, batch_size, device='cpu',train=True, shuffle=False):
         #User_en, Category, Subcategory, history_len, Category_Impressions, Subcategory_Impressions, Impressions_len, Clicked = map(lambda x: x.long(), [User_en, Category, Subcategory, history_len, Category_Impressions, Subcategory_Impressions, Impressions_len, Clicked])
         yield User_en.to(device), Category.to(device), Subcategory.to(device), History_tensor.to(device), history_len.to(device), Category_Impressions.to(device), Subcategory_Impressions.to(device), Impressions_tensor.to(device), Impressions_len.to(device), Clicked.to(device)
 
+#%%
 
+
+# N_batch, N_postive, 5
