@@ -154,12 +154,12 @@ for epoch in range(epochs):
     model.train(True)
     optimizer.zero_grad()
 
-    TestIterator = iter(TrainDataLoader)
+    TrainIterator = iter(TrainDataLoader)
     # Loop through training data
     for _ in range(batches):
 
         # Load batch
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = next(iter(TestIterator))
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = next(TrainIterator)
 
         # Get output
         Scores = model(user_id, history_title, history_length, impressions_title, n_positive)
@@ -213,10 +213,10 @@ for epoch in range(epochs):
             AUC_epoch += AUC_score/N_vali
             #MRR_pre += MRR_score.item()/N_vali
 
-            # Save loss, AUC and MRR
-            loss_vali.append(loss_vali_epoch)
-            AUC.append(AUC_epoch)
-            MRR.append(MRR_epoch)
+        # Save loss, AUC and MRR
+        loss_vali.append(loss_vali_epoch)
+        AUC.append(AUC_epoch)
+        MRR.append(MRR_epoch)
 
 
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
