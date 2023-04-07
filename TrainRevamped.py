@@ -144,8 +144,8 @@ MRR = [MRR_pre]
 losses = []
 loss_vali = [loss_pre]
 
-epochs = 5
-batches = len(TrainDataLoader)//32
+epochs = 30
+batches = len(TrainDataLoader) // 32
 
 # Training loop
 for epoch in range(epochs):
