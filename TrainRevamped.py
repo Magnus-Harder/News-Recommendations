@@ -26,12 +26,12 @@ word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
-user_file_train = 'Data/MindDemo_train/behaviors.tsv'
-news_file_train = 'Data/MindDemo_train/news.tsv'
-word_dict_file = 'Data/MindDemo_utils/word_dict_all.pkl'
+user_file_train = 'Data/MINDdemo_train/behaviors.tsv'
+news_file_train = 'Data/MINDdemo_train/news.tsv'
+word_dict_file = 'Data/MINDdemo_utils/word_dict_all.pkl'
 
-user_file_test = 'Data/MindDemo_dev/behaviors.tsv'
-news_file_test = 'Data/MindDemo_dev/news.tsv'
+user_file_test = 'Data/MINDdemo_dev/behaviors.tsv'
+news_file_test = 'Data/MINDdemo_dev/news.tsv'
 
 
 
