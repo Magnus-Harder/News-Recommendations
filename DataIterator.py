@@ -183,7 +183,7 @@ class NewsDataset(Dataset):
             negative_idx = np.split(negative_idx, len(positive_idx))    
 
             impressions_sampled = np.hstack([np.reshape(positive_idx, (-1,1)), negative_idx])
-	    impressions_sampled = impressions_sampled.astype('int32')
+            impressions_sampled = impressions_sampled.astype('int32')
             
             # Get impressions as title and abstract
             impressions_title = np.zeros((self.max_positive, 5, self.max_title_length), dtype=np.int32)
