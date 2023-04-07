@@ -73,7 +73,7 @@ LSTUR_con_module = LSTURini(
 model = LSTUR_con_module.to(device)
 
 # Define Optimizer
-optimizer = th.optim.Adam(model.parameters(), lr=hparams['train']['learning_rate'])
+optimizer = th.optim.Adam(model.parameters(), lr=0.001)
 
 # Define Loss
 def loss_fn(Scores,n_positive):
@@ -223,7 +223,7 @@ for epoch in range(epochs):
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
 # Saving Training Log
-with open('Revamped.pkl', 'wb') as f:
+with open('Revampedlr.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)
 
 
