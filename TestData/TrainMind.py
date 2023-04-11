@@ -70,9 +70,6 @@ test_iterator = MINDIterator(hparamsdata)
 batch_loader_train = train_iterator.load_data_from_file(train_news_file, train_behaviors_file)
 batch_loader_valid = test_iterator.load_data_from_file(valid_news_file, valid_behaviors_file)
 
-for batch in batch_loader_valid:
-    continue
-
 
 #%%
 from TestData.LSTURMind import LSTURini
@@ -116,11 +113,11 @@ def loss_fn_vali(Scores,labels):
 
     return loss
 
-def batch_to_tensor(batch):
-    user_id = th.from_numpy(batch['user_index_batch'])
-    history_title = th.from_numpy(batch['clicked_title_batch'])
-    impressions_title = th.from_numpy(batch['candidate_title_batch'])
-    labels = th.from_numpy(batch['labels'])
+def batch_to_tensor(batch,device='cpu'):
+    user_id = th.from_numpy(batch['user_index_batch']).to(device)
+    history_title = th.from_numpy(batch['clicked_title_batch']).to(device)
+    impressions_title = th.from_numpy(batch['candidate_title_batch']).to(device)
+    labels = th.from_numpy(batch['labels']).to(device)
 
     return user_id, history_title, impressions_title, labels
 
@@ -129,8 +126,8 @@ def batch_to_tensor(batch):
 model.train(False)
 
 softmax = th.nn.Softmax(dim=1)
-preds = {i : [] for i in test_iterator.impr_indexes}
-labels_dc = {i : [] for i in test_iterator.impr_indexes}
+preds = {i : [] for i in range(7538)}
+labels_dc = {i : [] for i in range(7538)}
 
 with th.no_grad():
     
@@ -148,7 +145,7 @@ with th.no_grad():
         i += 1
 
         # Load batch
-        user_id, history_title, impressions_title, labels = batch_to_tensor(batch)
+        user_id, history_title, impressions_title, labels = batch_to_tensor(batch,device)
 
         Scores = model(user_id.flatten(), history_title, impressions_title)
 
@@ -193,5 +190,3 @@ with th.no_grad():
     loss_pre = loss_pre/i
 
 print(f"Pre Training AUC: {AUC_pre}, MRR: {MRR_pre}, Loss: {loss_pre}")
-
-# %%
