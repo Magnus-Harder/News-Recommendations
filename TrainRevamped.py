@@ -144,7 +144,7 @@ MRR = [MRR_pre]
 losses = []
 loss_vali = [loss_pre]
 
-epochs = 10
+epochs = 5
 batches = len(TrainDataLoader) // 128
 
 # Training loop
@@ -222,8 +222,8 @@ for epoch in range(epochs):
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
-# Saving Training Log
-with open('Revamped12810Ep.pkl', 'wb') as f:
+# Saving Training Logs
+with open('Revamped128.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)
 
 
