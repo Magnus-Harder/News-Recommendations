@@ -144,7 +144,7 @@ MRR = [MRR_pre]
 losses = []
 loss_vali = [loss_pre]
 
-epochs = 5
+epochs = 10
 batches = len(TrainDataLoader) // 128
 
 # Training loop
@@ -223,7 +223,7 @@ for epoch in range(epochs):
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
 # Saving Training Log
-with open('Revamped128.pkl', 'wb') as f:
+with open('Revamped12810Ep.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)
 
 
