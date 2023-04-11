@@ -145,7 +145,7 @@ losses = []
 loss_vali = [loss_pre]
 
 epochs = 5
-batches = len(TrainDataLoader) // 32
+batches = len(TrainDataLoader) // 128
 
 # Training loop
 for epoch in range(epochs):
@@ -154,7 +154,7 @@ for epoch in range(epochs):
     model.train(True)
     optimizer.zero_grad()
 
-    TrainIterator = iter(TrainDataLoader)
+    TrainIterator = iter(DataLoader(TrainData, batch_size=128, shuffle=True))
     # Loop through training data
     for _ in range(batches):
 
@@ -223,7 +223,7 @@ for epoch in range(epochs):
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
 # Saving Training Log
-with open('Revamped.pkl', 'wb') as f:
+with open('Revamped128.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)
 
 
