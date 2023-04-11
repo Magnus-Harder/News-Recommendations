@@ -40,7 +40,7 @@ TrainData = NewsDataset(user_file_train, news_file_train, word_dict_file,train=T
                         max_history_length=hparams['data']['his_size'],
                         )
 
-TrainDataLoader = DataLoader(TrainData, batch_size=32, shuffle=True)
+TrainDataLoader = DataLoader(TrainData, batch_size=32, shuffle=False)
 
 
 TestData = NewsDataset(user_file_test, news_file_test, word_dict_file,train=False, device = device,
@@ -73,7 +73,7 @@ LSTUR_con_module = LSTURini(
 model = LSTUR_con_module.to(device)
 
 # Define Optimizer
-optimizer = th.optim.Adam(model.parameters(), lr=0.001)
+optimizer = th.optim.Adam(model.parameters(), lr=0.0001)
 
 # Define Loss
 def loss_fn(Scores,n_positive):
@@ -145,7 +145,7 @@ losses = []
 loss_vali = [loss_pre]
 
 epochs = 30
-batches = len(TrainDataLoader) // 32
+batches = 10 #len(TrainDataLoader) // 32
 
 # Training loop
 for epoch in range(epochs):
@@ -223,7 +223,7 @@ for epoch in range(epochs):
     print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
 
 # Saving Training Log
-with open('Revampedlr.pkl', 'wb') as f:
+with open('Revamped10Batch.pkl', 'wb') as f:
     pkl.dump([AUC,MRR,losses,loss_vali], f)
 
 
