@@ -21,10 +21,10 @@ with open('Data/MINDdemo_utils/word_dict_all.pkl', 'rb') as f:
 
 
 class NewsDataset(Dataset):
-    def __init__(self, user_file, news_file, word_dict_file, max_history_length=50, max_title_length=20, max_abstract_length=100,userid_dict = None,train=True, npratio=4, device='cpu'):
+    def __init__(self, user_file, news_file, word_dict_file, max_history_length=50, max_title_length=20, max_abstract_length=100,userid_dict = None,train=True, npratio=4, mask_prob= 0.5,device='cpu'):
         
         self.device = device
-        
+        self.mask_prob = mask_prob
         self.train = train
         self.max_history_length = max_history_length
         self.max_title_length = max_title_length
@@ -191,7 +191,11 @@ class NewsDataset(Dataset):
             impressions_abstract = np.zeros((self.max_positive, 5, self.max_abstract_length), dtype=np.int32)
             impressions_abstract[:n_positive] = [[self.news_data.iloc[news_id]['abstract_encode'] for news_id in impressions[indexs]] for indexs in impressions_sampled]
             labels = np.zeros((self.max_positive, 5), dtype=np.int32)
-            labels[:n_positive,0] = 1 
+            labels[:n_positive,0] = 1
+
+            # Mask user
+            if np.random.rand() < self.mask_prob:
+                user_id = 0
         else:
             # Get impressions as title as one long sequence
             impressions_title = [self.news_data.iloc[news_id]['title_encode'] for news_id in impressions]
