@@ -166,8 +166,6 @@ with th.no_grad():
 
         #AUC_pre += AUC_score
         #MRR_pre += MRR_score.item()/N_vali
-        if i == 50:
-            break    
     for key in preds.keys():
         # preds[key] = np.array(preds[key])
         # preds[key] = preds[key].argsort()[::-1]
