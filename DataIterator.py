@@ -52,7 +52,7 @@ class NewsDataset(Dataset):
         # Load news data
         self.news_data = pd.read_csv(news_file, sep='\t', header=None)
         self.news_data.columns = ['news_id', 'category', 'subcategory', 'title', 'abstract', 'url', 'title_entities', 'abstract_entities']
-        self.news_dict = {news_id: idx for idx, news_id in enumerate(self.news_data['news_id'])}
+        self.news_dict = {news_id: idx+1 for idx, news_id in enumerate(self.news_data['news_id'])}
 
         # Encode title and abstract
         self.news_data['title_encode'] = self.news_data['title'].apply(encode)
@@ -203,7 +203,7 @@ class NewsDataset(Dataset):
 
         # Convert to tensors
         user_id = th.tensor(user_id, dtype=th.long).to(self.device)
-        history_title = th.tensor(history_title, dtype=th.long).to(self.device)
+        history_title = th.tensor(history_title, dtype=th.long).to(self.device)        
         history_abstract = th.tensor(history_abstract, dtype=th.long).to(self.device)
         history_length = th.tensor(history_length, dtype=th.long).to(self.device)
         impressions_title = th.tensor(impressions_title, dtype=th.long).to(self.device)
@@ -211,32 +211,9 @@ class NewsDataset(Dataset):
         impressions_length = th.tensor(impressions_length, dtype=th.long).to(self.device)
         labels = th.tensor(labels, dtype=th.float).to(self.device)
 
+        history_title[history_length:,:] = 0
+        history_abstract[:history_length:,:] = 0
+
 
         return user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive
 
-
-#%%
-
-# Create dataset
-
-class test_dataset(Dataset):
-    def __init__(self, a= [1,2,3],b=[4,5,6]):
-        self.a = a
-        self.b = b
-    
-    def __len__(self):
-        return len(self.a)
-    
-    def __getitem__(self, idx):
-        return self.a[idx], self.b[idx]
-    
-
-#%%
-
-# Create dataloader
-
-test = test_dataset()
-test_loader = DataLoader(test, batch_size=1, shuffle=False)
-
-
-# %%
