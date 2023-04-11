@@ -52,7 +52,7 @@ class NewsDataset(Dataset):
         # Load news data
         self.news_data = pd.read_csv(news_file, sep='\t', header=None)
         self.news_data.columns = ['news_id', 'category', 'subcategory', 'title', 'abstract', 'url', 'title_entities', 'abstract_entities']
-        self.news_dict = {news_id: idx+1 for idx, news_id in enumerate(self.news_data['news_id'])}
+        self.news_dict = {news_id: idx for idx, news_id in enumerate(self.news_data['news_id'])}
 
         # Encode title and abstract
         self.news_data['title_encode'] = self.news_data['title'].apply(encode)
