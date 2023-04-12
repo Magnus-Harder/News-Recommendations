@@ -23,7 +23,7 @@ hparamsmodel = hparams['model']
 
 # %%
 # Define Device
-device = 'cuda' if th.cuda.is_available() else 'mps'
+device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
 train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
@@ -83,7 +83,7 @@ print(device)
 
 model = LSTUR_con_module.to(device)
 
-"""
+
 # Define Optimizer
 optimizer = th.optim.Adam(model.parameters(), lr=hparamstrain['learning_rate'])
 
@@ -94,6 +94,8 @@ with th.no_grad():
 	model.eval()
 	model.train(False)
 	Pre_training = validate_model(model, valid_news_file, valid_behaviors_file, test_iterator, device, metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
+
+print(Pre_training)
 
 def batch_to_tensor(batch, device):
     user_id = th.from_numpy(batch['user_index_batch']).to(device).flatten()
@@ -141,8 +143,8 @@ for epoch in range(hparamstrain['epochs']):
         AUC.append(result['group_auc'])
         MRR.append(result['mean_mrr'])
         NDCG5.append(result['ndcg@5'])
-        NDCG10.append(result['ndcg@510'])
-    
+        NDCG10.append(result['ndcg@10'])
+
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
     print(result)
 
@@ -151,4 +153,4 @@ for epoch in range(hparamstrain['epochs']):
 # Saving Training Logs
 with open('MindTrain.pkl', 'wb') as f:
     pickle.dump([training_loss,AUC,MRR,NDCG5,NDCG10], f)
-"""
+
