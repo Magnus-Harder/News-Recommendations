@@ -66,7 +66,6 @@ test_iterator = MINDIterator(hparamsdata)
 # %%
 from TestData.LSTURMind import LSTURini
 
-
 # Set Model Architecture
 LSTUR_con_module = LSTURini(
     attention_dim = hparamsmodel['attention_hidden_dim'],
@@ -81,6 +80,8 @@ LSTUR_con_module = LSTURini(
 )
 
 # Training 
+print(device)
+"""
 
 model = LSTUR_con_module.to(device)
 
@@ -151,3 +152,4 @@ for epoch in range(hparamstrain['epochs']):
 # Saving Training Logs
 with open('MindTrain.pkl', 'wb') as f:
     pickle.dump([training_loss,AUC,MRR,NDCG5,NDCG10], f)
+"""

@@ -8,7 +8,6 @@ Loading scipy/1.7.3-python-3.9.11
   Loading requirement: openblas/0.3.19 gcc/10.3.0-binutils-2.36.1 python3/3.9.11
     numpy/1.22.3-python-3.9.11-openblas-0.3.19
 Loaded module: cuda/11.7
-  File "/work3/s204117/News-Recommendations/TrainMind.py", line 96
-    with th.no_grad()
-                     ^
-SyntaxError: invalid syntax
+2023-04-12 16:46:32.290547: I tensorflow/core/platform/cpu_feature_guard.cc:182] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.
+To enable the following instructions: AVX2 AVX512F FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.
+2023-04-12 16:46:34.665873: W tensorflow/compiler/tf2tensorrt/utils/py_utils.cc:38] TF-TRT Warning: Could not find TensorRT
