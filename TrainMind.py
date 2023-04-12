@@ -9,6 +9,7 @@ import torch as th
 import numpy as np
 import yaml
 import pickle
+import random
 
 # Import Hparam
 with open('Data/MINDdemo_utils/lstur.yaml','r') as stream:
@@ -105,6 +106,16 @@ def batch_to_tensor(batch, device):
 
     return user_id, history_title, impressions_title, labels
 #%%
+def compute_user_mask(batch_size):
+    mask = th.zeros(batch_size)
+    for i in range(batch_size):
+        if random.random() < 0.5:
+            mask[i] = 1
+    return mask
+    
+
+
+#%%
 # Train the model
 AUC = [Pre_training['group_auc']]
 MRR = [Pre_training['mean_mrr']]
@@ -118,7 +129,7 @@ for epoch in range(hparamstrain['epochs']):
     for batch in tqdm(train_iterator.load_data_from_file(train_news_file, train_behaviors_file)):
 
         user_id, history_title, impressions_title, labels = batch_to_tensor(batch,device)
-
+        user_id = (compute_user_mask(user_id.shape[0]).to(device) * user_id).long()
 
         model.train()
 
