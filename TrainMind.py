@@ -93,7 +93,7 @@ optimizer = th.optim.Adam(model.parameters(), lr=hparamstrain['learning_rate'])
 loss_fn = th.nn.CrossEntropyLoss()
 
 # Training
-with th.no_grad()
+with th.no_grad():
 	model.eval()
 	model.train(False)
 	Pre_training = validate_model(model, valid_news_file, valid_behaviors_file, test_iterator, device, metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
