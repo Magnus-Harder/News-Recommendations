@@ -63,9 +63,6 @@ hparamsdata = HyperParams(
 train_iterator = MINDIterator(hparamsdata,npratio=hparams['data']['npratio'])
 test_iterator = MINDIterator(hparamsdata)
 
-batch_loader_train = train_iterator.load_data_from_file(train_news_file, train_behaviors_file)
-batch_loader_valid = test_iterator.load_data_from_file(valid_news_file, valid_behaviors_file)
-
 # %%
 from TestData.LSTURMind import LSTURini
 
@@ -114,6 +111,7 @@ NDCG10 = [Pre_training['ndcg@10']]
 training_loss = []
 
 for epoch in range(hparamstrain['epochs']):
+    optimizer.zero_grad()
 
     for batch in tqdm(train_iterator.load_data_from_file(train_news_file, train_behaviors_file)):
 
@@ -151,5 +149,5 @@ for epoch in range(hparamstrain['epochs']):
 # %%
 
 # Saving Training Logs
-with open('Revamped128.pkl', 'wb') as f:
+with open('MindTrain.pkl', 'wb') as f:
     pickle.dump([training_loss,AUC,MRR,NDCG5,NDCG10], f)
