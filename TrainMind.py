@@ -8,7 +8,6 @@ from tqdm import tqdm
 import torch as th
 import numpy as np
 import yaml
-import tensorflow as tf
 import pickle
 
 # Import Hparam
@@ -81,10 +80,10 @@ LSTUR_con_module = LSTURini(
 
 # Training 
 print(device)
-"""
 
 model = LSTUR_con_module.to(device)
 
+"""
 # Define Optimizer
 optimizer = th.optim.Adam(model.parameters(), lr=hparamstrain['learning_rate'])
 
