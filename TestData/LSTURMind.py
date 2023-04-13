@@ -41,6 +41,7 @@ class TitleEncoder(nn.Module):
 
     def forward(self, encoded_title):
 
+        mask = (encoded_title != 0).float()
         # Convert the encoded title to word embedding
         W = self.word_embedding(encoded_title)
         W = self.dropout1(W)        
@@ -58,6 +59,8 @@ class TitleEncoder(nn.Module):
         a = a.squeeze(-1)
 
         alpha = self.Softmax(a)
+
+        alpha = alpha * mask
         
         # shape e: seq_len, channel_size
         e = th.zeros(seq_len, channel_size, device=self.device)
