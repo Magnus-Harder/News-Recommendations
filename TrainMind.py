@@ -162,6 +162,6 @@ for epoch in range(hparamstrain['epochs']):
 # %%
 
 # Saving Training Logs
-with open('MindTrain.pkl', 'wb') as f:
+with open('MindTrainMasking.pkl', 'wb') as f:
     pickle.dump([training_loss,AUC,MRR,NDCG5,NDCG10], f)
 
