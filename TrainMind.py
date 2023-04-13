@@ -165,3 +165,5 @@ for epoch in range(hparamstrain['epochs']):
 with open('MindTrainMasking.pkl', 'wb') as f:
     pickle.dump([training_loss,AUC,MRR,NDCG5,NDCG10], f)
 
+
+# %%
