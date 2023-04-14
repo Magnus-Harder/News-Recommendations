@@ -20,6 +20,6 @@ module load cuda/11.7
 
 # activate the virtual environment
 # NOTE: needs to have been built with the same SciPy version above!
-source venv/bin/activate
+source venv_1/bin/activate
 
 python3 TrainDataLoader.py
