@@ -2,7 +2,6 @@
 from tqdm import tqdm
 import pickle as pkl
 
-from General.Utils import ValidateModel
 from DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 
@@ -23,7 +22,7 @@ word_embedding = word_embedding.astype(np.float32)
 
 # %%
 # Define Device
-device = 'cuda' if th.cuda.is_available() else 'cpu'
+device = 'cuda' if th.cuda.is_available() else 'mps'
 
 # Define Data, Dataset and DataLoaders
 train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
@@ -86,9 +85,8 @@ model = LSTUR_con_module.to(device)
 optimizer = th.optim.Adam(model.parameters(), lr=0.0001)
 
 loss_fn = th.nn.CrossEntropyLoss()
+#%%
 
-
-# %%
 
 with th.no_grad():
     model.eval()
@@ -102,13 +100,19 @@ with th.no_grad():
     for batch in tqdm(vali_batch_loader):
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
 
+        user_id = user_id.to(device)
+        history_title = history_title.to(device)
+        history_length = history_length.to(device)
+        impressions_title = impressions_title.to(device)
+        labels = labels.to(device)
+
         Scores = model(user_id, history_title, history_length, impressions_title)
 
         loss = loss_fn(Scores, labels)
         loss_vali.append(loss.item())
     
-        labels_all.append(labels.squeeze(0).numpy())
-        preds_all.append(Scores.squeeze(0).detach().numpy())
+        labels_all.append(labels.squeeze(0).cpu().numpy())
+        preds_all.append(Scores.squeeze(0).detach().cpu().numpy())
 
         
     
@@ -139,6 +143,12 @@ for epoch in range(hparams['train']['epochs']):
 
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
 
+        user_id = user_id.to(device)
+        history_title = history_title.to(device)
+        history_length = history_length.to(device)
+        impressions_title = impressions_title.to(device)
+        labels = labels.to(device)
+
         optimizer.zero_grad()
 
         Scores = model(user_id, history_title, history_length, impressions_title)
@@ -163,19 +173,24 @@ for epoch in range(hparams['train']['epochs']):
         for batch in tqdm(vali_batch_loader):
             user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
 
+            user_id = user_id.to(device)
+            history_title = history_title.to(device)
+            history_length = history_length.to(device)
+            impressions_title = impressions_title.to(device)
+            labels = labels.to(device)
+
             Scores = model(user_id, history_title, history_length, impressions_title)
 
             loss = loss_fn(Scores, labels)
             loss_vali.append(loss.item())
+        
+            labels_all.append(labels.squeeze(0).cpu().numpy())
+            preds_all.append(Scores.squeeze(0).detach().cpu().numpy())
 
-            labels_all.append(labels.squeeze(0).numpy())
-            preds_all.append(Scores.squeeze(0).detach().numpy())
+                
 
-
-            
-
-        result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
-        result['loss'] = np.mean(loss_vali)
+            result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
+            result['loss'] = np.mean(loss_vali)
 
         AUC.append(result['group_auc'])
         MRR.append(result['mean_mrr'])
