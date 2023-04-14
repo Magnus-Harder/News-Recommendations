@@ -137,18 +137,44 @@ class NewsDataset(Dataset):
         # Save new history lengths
         self.user_data['history_length'][self.user_data['history_length'] > 50] = 50
 
-        # # Pad impressions
-        # def pad_impressions(x):
-        #     return x + [0]*(self.max_impressions_length - len(x))
-        #self.user_data['impressions_encoded'] = self.user_data['impressions_encoded'].apply(pad_impressions)
         
-        # Pad labels
-        def pad_labels(x):
-            return x + [-1]*(self.max_impressions_length - len(x))
-        
-       
-        self.user_data['labels'] = self.user_data['labels'].apply(pad_labels)
+        if train:
+             # get negative impressions
+            def get_negative_impressions(impressions):
 
+                impressions = impressions.split(" ")
+                
+                negative_impressions = []
+
+
+                for impression in impressions:
+                    news_id, label = impression.split("-")
+
+                    if label == "0":
+                        negative_impressions.append(self.news_dict[news_id])
+                
+                return negative_impressions
+            
+            self.user_data['negative_impressions'] = self.user_data['impressions'].apply(get_negative_impressions)
+            
+            # get positive impressions
+            def get_positive_impressions(impressions):
+                impressions = impressions.split(" ")
+                
+                positive_impressions = []
+
+                for impression in impressions:
+                    news_id, label = impression.split("-")
+                    if label == "1":
+                        positive_impressions.append(self.news_dict[news_id])
+                
+                return positive_impressions
+            
+            self.user_data['positive_impressions'] = self.user_data['impressions'].apply(get_positive_impressions)
+
+            # Explode user data for each impression if training
+            self.user_data = self.user_data.explode('positive_impressions')
+            self.user_data.index = np.arange(len(self.user_data))
 
     def __len__(self):
         return len(self.user_data)
@@ -175,33 +201,34 @@ class NewsDataset(Dataset):
 
         # Sample negative impressions 
         if self.train:
-            positive_idx = np.where(np.array(labels) == 1)[0]
-            negative_idx = np.where(np.array(labels) == 0)[0]
-        
-            # Sample 4 negative impressions for each positive impression
-            negative_idx = np.random.choice(negative_idx, size=4*len(positive_idx), replace=False) if len(negative_idx) > 4*len(positive_idx) else np.random.choice(negative_idx, size=4*len(positive_idx), replace=True)
-            negative_idx = np.split(negative_idx, len(positive_idx))    
-
-            impressions_sampled = np.hstack([np.reshape(positive_idx, (-1,1)), negative_idx])
-            impressions_sampled = impressions_sampled.astype('int32')
-            
-            # Get impressions as title and abstract
-            impressions_title = np.zeros((self.max_positive, 5, self.max_title_length), dtype=np.int32)
-            impressions_title[:n_positive] = [[self.news_data.iloc[news_id]['title_encode'] for news_id in impressions[indexs]] for indexs in impressions_sampled]
-            impressions_abstract = np.zeros((self.max_positive, 5, self.max_abstract_length), dtype=np.int32)
-            impressions_abstract[:n_positive] = [[self.news_data.iloc[news_id]['abstract_encode'] for news_id in impressions[indexs]] for indexs in impressions_sampled]
-            labels = np.zeros((self.max_positive, 5), dtype=np.int32)
-            labels[:n_positive,0] = 1
-
+            positive_sample = self.user_data.iloc[idx]['positive_impressions']
+            negative_sample = self.user_data.iloc[idx]['negative_impressions']
+            if len(negative_sample) >= self.npratio:
+                negative_sample = np.random.choice(negative_sample, size=self.npratio, replace=False)
+            else:
+                negative_sample = np.random.choice(negative_sample, size=self.npratio, replace=True)
             # Mask user
             if np.random.rand() < self.mask_prob:
                 user_id = 0
+            
+            impressions = np.array([positive_sample, *negative_sample])
+            
+            # Get impressions as title and abstract
+            impressions_title = [self.news_data.iloc[news_id]['title_encode'] for news_id in impressions]
+            impressions_abstract = [self.news_data.iloc[news_id]['abstract_encode'] for news_id in impressions]
+
+            # Get labels
+            labels = np.array([1]+[0]*self.npratio)
+
+            # Get impressions length
+            impressions_length = len(impressions)
+
         else:
             # Get impressions as title as one long sequence
             impressions_title = [self.news_data.iloc[news_id]['title_encode'] for news_id in impressions]
             impressions_abstract = [self.news_data.iloc[news_id]['abstract_encode'] for news_id in impressions]
         
-        impressions_length = self.user_data.iloc[idx]['impressions_length']
+            impressions_length = self.user_data.iloc[idx]['impressions_length']
 
 
 
@@ -216,7 +243,7 @@ class NewsDataset(Dataset):
         labels = th.tensor(labels, dtype=th.float).to(self.device)
 
         history_title[history_length:,:] = 0
-        history_abstract[:history_length:,:] = 0
+        history_abstract[history_length:,:] = 0
 
 
         return user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive

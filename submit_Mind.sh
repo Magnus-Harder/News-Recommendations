@@ -22,4 +22,4 @@ module load cuda/11.7
 # NOTE: needs to have been built with the same SciPy version above!
 source venv/bin/activate
 
-python3 TrainMind.py
+python3 TrainDataLoader.py
