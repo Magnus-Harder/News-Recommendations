@@ -134,7 +134,7 @@ Loss_vali = [Pre_training['loss']]
 Loss_training = []
 
 
-for epoch in range(hparams['train']['epochs']):
+for epoch in range(20):
     model.train(True)
 
     train_data_loader = DataLoader(TrainData, batch_size=hparamsdata.batch_size, shuffle=True)
@@ -205,6 +205,6 @@ for epoch in range(hparams['train']['epochs']):
 
 # Saving Training Logs
 with open('MindTrainMasking.pkl', 'wb') as f:
-    pickle.dump([Loss_training], f)
+    pickle.dump([Loss_training,AUC,MRR,NDCG5,NDCG10,Loss_vali], f)
 
 
