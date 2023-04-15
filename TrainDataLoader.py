@@ -189,13 +189,13 @@ for epoch in range(hparams['train']['epochs']):
 
                 
 
-            result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
-            result['loss'] = np.mean(loss_vali)
+        result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
+        result['loss'] = np.mean(loss_vali)
 
         AUC.append(result['group_auc'])
         MRR.append(result['mean_mrr'])
         NDCG5.append(result['ndcg@5'])
-        NDCG10.append(result['ndcg@510'])
+        NDCG10.append(result['ndcg@10'])
         Loss_vali.append(result['loss'])
     
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
