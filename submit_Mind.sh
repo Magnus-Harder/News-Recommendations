@@ -12,7 +12,7 @@
 # end of BSUB options
 
 # module load scipy/VERSION
-module load scipy/1.7.3-python-3.9.11
+module load python3/3.9.11
 
 # load CUDA (for GPU support)
 module load cuda/11.7
@@ -22,4 +22,4 @@ module load cuda/11.7
 # NOTE: needs to have been built with the same SciPy version above!
 source venv_1/bin/activate
 
-python3 TrainMind.py
+python3 TrainDataLoader.py

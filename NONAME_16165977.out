@@ -2,15 +2,15 @@
 
 ------------------------------------------------------------
 Sender: LSF System <lsfadmin@hpc.dtu.dk>
-Subject: Job 16099651: <NONAME> in cluster <dcc> Exited
+Subject: Job 16165977: <NONAME> in cluster <dcc> Exited
 
-Job <NONAME> was submitted from host <gbarlogin1> by user <s204117> in cluster <dcc> at Wed Apr 12 16:45:20 2023
-Job was executed on host(s) <n-62-31-5>, in queue <hpc>, as user <s204117> in cluster <dcc> at Wed Apr 12 16:45:21 2023
+Job <NONAME> was submitted from host <gbarlogin1> by user <s204117> in cluster <dcc> at Fri Apr 14 21:11:35 2023
+Job was executed on host(s) <n-62-31-5>, in queue <hpc>, as user <s204117> in cluster <dcc> at Fri Apr 14 21:11:36 2023
 </zhome/34/e/155680> was used as the home directory.
 </work3/s204117/News-Recommendations> was used as the working directory.
-Started at Wed Apr 12 16:45:21 2023
-Terminated at Wed Apr 12 16:45:22 2023
-Results reported at Wed Apr 12 16:45:22 2023
+Started at Fri Apr 14 21:11:36 2023
+Terminated at Fri Apr 14 21:11:36 2023
+Results reported at Fri Apr 14 21:11:36 2023
 
 Your job looked like:
 
@@ -31,8 +31,8 @@ Resource usage summary:
     Max Swap :                                   -
     Max Processes :                              -
     Max Threads :                                -
-    Run time :                                   1 sec.
-    Turnaround time :                            2 sec.
+    Run time :                                   118 sec.
+    Turnaround time :                            1 sec.
 
 The output (if any) is above this job summary.
 
