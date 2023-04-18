@@ -74,7 +74,7 @@ impressions_length = 50
 
 TransformerModule = lstransformer(his_size = 50, 
                                   candidate_size = impressions_length,
-                                  d_model = 512, 
+                                  d_model = 30, 
                                   ffdim = 100, 
                                   nhead = 1, 
                                   num_layers = 1, 
@@ -131,7 +131,7 @@ with th.no_grad():
         idx = impressions_length.item()
 
         # Get output
-        Scores = model(user_id, history_title, history_length, impressions_title[:idx], n_positive)
+        Scores = model(user_id, history_title, impressions_title[:idx])
         pred = softmax(Scores)[0]
         #print(pred)
         # Calculate loss
