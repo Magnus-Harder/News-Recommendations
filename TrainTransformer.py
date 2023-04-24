@@ -110,13 +110,25 @@ optimizer = th.optim.Adam(model.parameters(), lr=0.0001)
 # Define Loss
 loss_fn = th.nn.BCEWithLogitsLoss()
 
-def get_masx(length, history_length,impressions_length):
+def get_mask(batch_size,length, history_length,impressions_length):
 
-    history_mask = th.zeros(length)
-    impressions_mask = th.zeros(length)
+    history_mask = th.zeros((batch_size,length,length))
+    impressions_mask = th.zeros((batch_size,length,length))
 
-    history_mask[:history_length] = 1
-    impressions_mask[:impressions_length] = 1
+    for _ in range(batch_size):
+        history_mask[_,history_length[_]:,0] = float('-inf')
+        impressions_mask[_,impressions_length[_]:,0] = float('-inf')
+
+    return history_mask, impressions_mask
+
+def get_mask_key(batch_size,length, history_length,impressions_length):
+
+    history_mask = th.zeros((batch_size,length))
+    impressions_mask = th.zeros((batch_size,length))
+
+    for _ in range(batch_size):
+        history_mask[_,history_length[_]:] = 1
+        impressions_mask[_,impressions_length[_]:] = 1
 
     return history_mask.bool(), impressions_mask.bool()
 
@@ -130,10 +142,13 @@ with th.no_grad():
     preds_all = []
     loss_vali = []
 
-    vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=True)
+    batch_size_vali = 16
+
+    vali_batch_loader = DataLoader(TestData, batch_size=batch_size_vali, shuffle=False)
     for batch in tqdm(vali_batch_loader):
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
 
+        history_mask, impressions_mask = get_mask_key(batch_size_vali,TestData.max_length, history_length, impressions_length)
 
         user_id = user_id.to(device)
         history_title = history_title.to(device)
@@ -141,24 +156,22 @@ with th.no_grad():
         impressions_title = impressions_title.to(device)
         labels = labels.to(device)
 
-        Scores = model(user_id, history_title, impressions_title)
+        Scores = model(user_id, history_title, history_mask, impressions_title, impressions_mask)
         Scores = Scores.squeeze(-1)
 
-        print(Scores.argmax())
-        print(labels.argmax())
-        print(Scores[labels == 1])
+        for i in range(batch_size_vali):
 
-        loss = loss_fn(Scores[:,:impressions_length.item()], labels[:,:impressions_length.item()])
-        loss_vali.append(loss.item())
+            loss = loss_fn(Scores[i,:impressions_length[i].item()], labels[i,:impressions_length[i].item()])
+            loss_vali.append(loss.item())
 
-        labels_all.append(labels.squeeze(0).cpu().numpy())
-        preds_all.append(Scores.squeeze(0).detach().cpu().numpy())
+            labels_all.append(labels[i].cpu().numpy())
+            preds_all.append(Scores[i].detach().cpu().numpy())
 
 
-Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
-Pre_training['loss'] = np.mean(loss_vali)
+    Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
+    Pre_training['loss'] = np.mean(loss_vali)
 
-print(Pre_training)
+    print(Pre_training)
 #%%
 
 
@@ -175,11 +188,14 @@ Loss_training = []
 for epoch in range(1):
     model.train(True)
 
-    train_data_loader = DataLoader(TrainData, batch_size=1, shuffle=True)
-    i = 0
+    train_data_loader = DataLoader(TrainData, batch_size=16, shuffle=True)
+
     for batch in tqdm(train_data_loader):
 
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
+
+        history_mask, impressions_mask = get_mask_key(16,TrainData.max_length, history_length, impressions_length)
+
 
         user_id = user_id.to(device)
         history_title = history_title.to(device)
@@ -203,10 +219,6 @@ for epoch in range(1):
 
         Loss_training.append(loss.item())
 
-        i += 1
-        if i > 10:
-            break
-    break
     with th.no_grad():
         model.eval()
         model.train(False)

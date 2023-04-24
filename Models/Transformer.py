@@ -11,11 +11,11 @@ class lstransformer(nn.Module):
             self.num_layers = num_layers
 
             # Encoder 
-            self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout)
+            self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
             self.encoder = nn.TransformerEncoder(encoder_layer = self.encoderlayer, num_layers = self.num_layers)
             
             # Decoder
-            self.decoderlayer = nn.TransformerDecoderLayer(d_model, nhead, dim_feedforward=ffdim, dropout=dropout)
+            self.decoderlayer = nn.TransformerDecoderLayer(d_model, nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
             self.decoder = nn.TransformerDecoder(decoder_layer = self.decoderlayer, num_layers = self.num_layers)
             
 
@@ -28,7 +28,7 @@ class lstransformer(nn.Module):
             self.outlayer = nn.Linear(d_model, 1)
             self.softmax = nn.Softmax(1)
 
-        def forward(self, user_id, embed_his, candidates):
+        def forward(self, user_id, embed_his,his_mask, candidates,cand_mask):
 
             # Encode history
             encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400))
@@ -37,7 +37,7 @@ class lstransformer(nn.Module):
                  encoded_his[i] = self.newsencoder(embed_his[i])
             
             #embed_his = self.newsencoder(embed_his)
-            memory = self.encoder(encoded_his)
+            memory = self.encoder(encoded_his, src_key_padding_mask = his_mask)
             users = self.UserEmbedding(user_id)
             # Add user embedding to memory
             for i in range(memory.shape[0]):
@@ -55,7 +55,7 @@ class lstransformer(nn.Module):
 
 
             #Decode candidates with memory
-            decoded = self.decoder(embed_cand,memory)
+            decoded = self.decoder(embed_cand,memory,tgt_key_padding_mask = cand_mask)
             
             #Final layer
             out = self.outlayer(decoded)
