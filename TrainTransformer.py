@@ -7,6 +7,9 @@ from DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 
 
+from TestData.MindDependencies.Metrics import cal_metric
+
+
 import torch as th
 import numpy as np
 import yaml
@@ -18,38 +21,53 @@ with open('Data/MINDdemo_utils/lstur.yaml','r') as stream:
 # Import word_vec
 word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 
+# Import word_vec
+word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
+word_embedding = word_embedding.astype(np.float32)
 
 
-#%%
-
+# %%
 # Define Device
 device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
-user_file_train = 'Data/MINDdemo_train/behaviors.tsv'
-news_file_train = 'Data/MINDdemo_train/news.tsv'
+train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
+train_news_file = 'Data/MINDdemo_train/news.tsv'
 word_dict_file = 'Data/MINDdemo_utils/word_dict_all.pkl'
+user_dict_file = 'Data/MINDdemo_utils/uid2index.pkl'
 
-user_file_test = 'Data/MINDdemo_dev/behaviors.tsv'
-news_file_test = 'Data/MINDdemo_dev/news.tsv'
+valid_behaviors_file = 'Data/MINDdemo_dev/behaviors.tsv'
+valid_news_file = 'Data/MINDdemo_dev/news.tsv'
 
+# %%
+import pickle
 
+with open ("Data/MINDdemo_utils/word_dict.pkl", "rb") as f:
+    word_dict = pickle.load(f)
+with open ("Data/MINDdemo_utils/uid2index.pkl", "rb") as f:
+    uid2index = pickle.load(f)
 
-TrainData = NewsDataset(user_file_train, news_file_train, word_dict_file,train=True,device = device,
-                        max_title_length=hparams['data']['title_size'],
-                        max_history_length=hparams['data']['his_size'],
-                        )
+from dataclasses import dataclass
 
-TrainDataLoader = DataLoader(TrainData, batch_size=32, shuffle=False)
+@dataclass
+class HyperParams:
+    batch_size: int
+    title_size: int
+    his_size: int
+    wordDict_file: str
+    userDict_file: str
 
+hparamsdata = HyperParams(
+    batch_size=32,
+    title_size=20,
+    his_size=50,
+    wordDict_file=word_dict_file,
+    userDict_file=user_dict_file,
+)
 
-TestData = NewsDataset(user_file_test, news_file_test, word_dict_file,train=False, device = device,
-                        max_title_length=hparams['data']['title_size'],
-                        max_history_length=hparams['data']['his_size'],
-                        userid_dict=TrainData.userid_dict,
-                        )
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, train=True)
+TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False)
 
-ValiDataLoader = DataLoader(TestData, batch_size=1, shuffle=False)
 
 
 from TestData.LSTURMind import NewsEncoder
@@ -74,11 +92,12 @@ impressions_length = 50
 
 TransformerModule = lstransformer(his_size = 50, 
                                   candidate_size = impressions_length,
-                                  d_model = 30, 
+                                  d_model = 400, 
                                   ffdim = 100, 
                                   nhead = 1, 
                                   num_layers = 1, 
-                                  newsencoder = newsencoder, 
+                                  newsencoder = newsencoder,
+                                  user_vocab_size=uid2index.__len__() + 1,
                                   dropout=0.1,
                                 )
 
@@ -89,152 +108,146 @@ model = TransformerModule.to(device)
 optimizer = th.optim.Adam(model.parameters(), lr=0.0001)
 
 # Define Loss
-def loss_fn(Scores,n_positive):
-    n = Scores.shape[0]
-
-    loss = 0
-    for i in range(n):
-        loss += -th.log(th.exp(Scores[i,:n_positive[i],0])/th.exp(Scores[i,:n_positive[i],:]).sum(dim=1)).sum()
-
-    return loss/n
-
-def loss_fn_vali(Scores,labels):
-
-    loss = -th.log(th.exp(Scores[labels == 1].sum())/th.exp(Scores).sum())
-
-    return loss
+loss_fn = th.nn.CrossEntropyLoss()
 
 #%%
 # Pre Training Validation step
-model.train(False)
-
-softmax = th.nn.Softmax(dim=1)
-
 with th.no_grad():
-    
-    # Initialize variables
-    AUC_pre = 0
-    MRR_pre = 0
-    loss_pre = 0
+    model.eval()
+    model.train(False)
+    labels_all = []
+    preds_all = []
+    loss_vali = []
 
-    # Load validation data
-    DataIterators = iter(ValiDataLoader)
+    vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=False)
+    i = 0
+    for batch in tqdm(vali_batch_loader):
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
 
-    # Loop through validation data
-    N_vali = len(ValiDataLoader)
-    for _ in range(N_vali):
+        user_id = user_id.to(device)
+        history_title = history_title.to(device)
+        history_length = history_length.to(device)
+        impressions_title = impressions_title.to(device)
+        labels = labels.to(device)
 
-        # Load batch
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = next(DataIterators)
+        Scores = model(user_id, history_title, impressions_title)
+        Scores = Scores.squeeze(-1)
 
-        # Get length of impression
-        idx = impressions_length.item()
-
-        # Get output
-        Scores = model(user_id, history_title, impressions_title[:idx])
-        pred = softmax(Scores)[0]
-        #print(pred)
-        # Calculate loss
-        loss = loss_fn_vali(Scores[0],labels[0,:idx])
-        loss_pre += loss.item()/N_vali
+        if labels.shape[1] > 50:
+            labels = labels[:, :50]
+        elif labels.shape[1] < 50:
+            labels = th.cat((labels, th.zeros((labels.shape[0], 50 - labels.shape[1])).to(device)), dim=1)
 
 
-        # # Calculate metrics
-        AUC_score = ValidateModel.ROC_AUC(pred.detach().cpu(), labels[0,:idx].detach().cpu())
-        #MRR_score = ValidateModel.mean_reciprocal_rank(Clicked.detach().cpu(), pred.detach().cpu()[0])
-
-        AUC_pre += AUC_score/N_vali
-        #MRR_pre += MRR_score.item()/N_vali
-
-
-print(f"Pre Training AUC: {AUC_pre}, MRR: {MRR_pre}, Loss: {loss_pre}")
-
+        loss = loss_fn(Scores, labels)
+        loss_vali.append(loss.item())
+        if sum(labels.squeeze(0).cpu().numpy()) == 0:
+            continue
+        labels_all.append(labels.squeeze(0).cpu().numpy())
+        preds_all.append(Scores.squeeze(0).detach().cpu().numpy())
+        i += 1
+        if i > 100:
+            break
 #%%
 
-# Initialize lists for saving metrics
-AUC = [AUC_pre]
-MRR = [MRR_pre]
-losses = []
-loss_vali = [loss_pre]
+Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
+Pre_training['loss'] = np.mean(loss_vali)
 
-epochs = 5
-batches = len(TrainDataLoader) // 128
+print(Pre_training)
 
-# Training loop
-for epoch in range(epochs):
 
-    # Training step
+
+# %%
+# Train the model
+AUC = [Pre_training['group_auc']]
+MRR = [Pre_training['mean_mrr']]
+NDCG5 = [Pre_training['ndcg@5']]
+NDCG10 = [Pre_training['ndcg@10']]
+Loss_vali = [Pre_training['loss']]
+Loss_training = []
+
+
+for epoch in range(1):
     model.train(True)
-    optimizer.zero_grad()
 
-    TrainIterator = iter(DataLoader(TrainData, batch_size=128, shuffle=True))
-    # Loop through training data
-    for _ in range(batches):
+    train_data_loader = DataLoader(TrainData, batch_size=hparamsdata.batch_size, shuffle=True)
+    i = 0
+    for batch in tqdm(train_data_loader):
 
-        # Load batch
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = next(TrainIterator)
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
 
-        # Get output
-        Scores = model(user_id, history_title, history_length, impressions_title, n_positive)
+        user_id = user_id.to(device)
+        history_title = history_title.to(device)
+        history_length = history_length.to(device)
+        impressions_title = impressions_title.to(device)
+        labels = labels.to(device)
 
-        # Calculate loss
-        loss = loss_fn(Scores,n_positive)
-        loss.backward()
-
-        # Update weights
-        optimizer.step()
         optimizer.zero_grad()
 
-        # Save loss   
-        losses.append(loss.item())
+        Scores = Scores.squeeze(-1)
 
-    # Validation step
-    model.train(False)    
-    
-    # No gradient calculation
+        Scores = model(user_id, history_title, impressions_title)
+
+        
+
+        loss = loss_fn(Scores,labels)
+
+        loss.backward()
+
+        optimizer.step()
+
+        Loss_training.append(loss.item())
+
+        i += 1
+        if i > 10:
+            break
+    break
     with th.no_grad():
+        model.eval()
+        model.train(False)
+        labels_all = []
+        preds_all = []
+        loss_vali = []
+
+        vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=False)
+        i = 0
+        for batch in tqdm(vali_batch_loader):
+            user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
+
+            user_id = user_id.to(device)
+            history_title = history_title.to(device)
+            history_length = history_length.to(device)
+            impressions_title = impressions_title.to(device)
+            labels = labels.to(device)
+
+            Scores = model(user_id, history_title, history_length, impressions_title)
+
+            loss = loss_fn(Scores, labels)
+            loss_vali.append(loss.item())
+            if sum(labels.squeeze(0).cpu().numpy()) == 0:
+                continue
+        
+            labels_all.append(labels.squeeze(0).cpu().numpy())
+            preds_all.append(Scores.squeeze(0).detach().cpu().numpy())
+            i += 1
+            if i > 100:
+                break
+
+
+        result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
+        result['loss'] = np.mean(loss_vali)
+
+        AUC.append(result['group_auc'])
+        MRR.append(result['mean_mrr'])
+        NDCG5.append(result['ndcg@5'])
+        NDCG10.append(result['ndcg@10'])
+        Loss_vali.append(result['loss'])
     
-        # Initialize variables
-        AUC_epoch = 0
-        MRR_epoch = 0
-        loss_vali_epoch = 0
-        # Load validation data
-        DataIterators = iter(ValiDataLoader)
-
-        # Loop through validation data
-        for _ in range(N_vali):
-
-            # Load batch
-            user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = next(DataIterators)
-
-            # Get length of impression
-            idx = impressions_length.item()
-
-            # Get output
-            Scores = model(user_id, history_title, history_length, impressions_title[:idx], n_positive)
-            pred = softmax(Scores)[0]
-  
-            # Calculate loss
-            loss = loss_fn_vali(Scores[0],labels[0,:idx])
-            loss_vali_epoch += loss.item()/N_vali
-
-
-            # # Calculate metrics
-            AUC_score = ValidateModel.ROC_AUC(pred.detach().cpu(), labels[0,:idx].detach().cpu())
-            #MRR_score = ValidateModel.mean_reciprocal_rank(Clicked.detach().cpu(), pred.detach().cpu()[0])
-
-            AUC_epoch += AUC_score/N_vali
-            #MRR_pre += MRR_score.item()/N_vali
-
-        # Save loss, AUC and MRR
-        loss_vali.append(loss_vali_epoch)
-        AUC.append(AUC_epoch)
-        MRR.append(MRR_epoch)
-
-
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
-    print(f"AUC: {AUC_epoch}. MRR: {MRR_epoch}. Loss: {loss_vali_epoch}.")
+    print(result)
+
+# %%
 
 # Saving Training Logs
-with open('Revamped128.pkl', 'wb') as f:
-    pkl.dump([AUC,MRR,losses,loss_vali], f)
+with open('TrainTransformer.pkl', 'wb') as f:
+    pickle.dump([Loss_training,AUC,MRR,NDCG5,NDCG10,Loss_vali], f)

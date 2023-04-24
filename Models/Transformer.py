@@ -6,7 +6,7 @@ from TestData.LSTURMind import NewsEncoder
 
 #%%
 class lstransformer(nn.Module):
-        def __init__(self, his_size, candidate_size ,d_model, ffdim, nhead, num_layers, newsencoder, dropout=0.1):
+        def __init__(self, his_size, candidate_size ,d_model, ffdim, nhead, num_layers, newsencoder,user_vocab_size ,dropout=0.1):
             super().__init__()
             self.num_layers = num_layers
 
@@ -15,31 +15,50 @@ class lstransformer(nn.Module):
             self.encoder = nn.TransformerEncoder(encoder_layer = self.encoderlayer, num_layers = self.num_layers)
             
             # Decoder
-            self.decoderlayer = nn.TransformerDecoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout)
+            self.decoderlayer = nn.TransformerDecoderLayer(d_model, nhead, dim_feedforward=ffdim, dropout=dropout)
             self.decoder = nn.TransformerDecoder(decoder_layer = self.decoderlayer, num_layers = self.num_layers)
             
 
             #Newsencoder and userembedder
             self.newsencoder = newsencoder
-            self.UserEmbedding = nn.Embedding(his_size, d_model ,padding_idx=0)
+            self.UserEmbedding = nn.Embedding(user_vocab_size, d_model ,padding_idx=0)
 
 
             #Final linear layer
-            self.outlayer = nn.Linear(d_model, candidate_size)
+            self.outlayer = nn.Linear(d_model, 1)
             self.softmax = nn.Softmax(candidate_size)
 
         def forward(self, user_id, embed_his, candidates):
 
-            embed_his = self.newsencoder(th.reshape(embed_his,[50,30]))
-            memory = self.encoder(embed_his[:,:30]).to(th.long)
+            # Encode history
+            encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400))
+
+            for i in range(embed_his.shape[0]):
+                 encoded_his[i] = self.newsencoder(embed_his[i])
+            
+            #embed_his = self.newsencoder(embed_his)
+            memory = self.encoder(encoded_his)
+            users = self.UserEmbedding(user_id)
             # Add user embedding to memory
-            memory = (memory + self.UserEmbedding(user_id)).to(th.long)
+            for i in range(memory.shape[0]):
+                memory[i] = memory[i] + users[i]
+    
 
             # Type error bug fixing
-            candidates = candidates.to(th.long)
+            candidates = candidates
+
+            embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400))
+            
+            for i in range(candidates.shape[0]):
+                embed_cand[i] = self.newsencoder(candidates[i])
+
+            #print(embed_cand.shape)
+
+            embed_cand = th.ones((32,50,400))
+
 
             #Decode candidates with memory
-            decoded = self.decoder(candidates,memory)
+            decoded = self.decoder(embed_cand,memory)
             
             #Final layer
             out = self.outlayer(decoded)
