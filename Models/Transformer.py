@@ -26,7 +26,7 @@ class lstransformer(nn.Module):
 
             #Final linear layer
             self.outlayer = nn.Linear(d_model, 1)
-            self.softmax = nn.Softmax(candidate_size)
+            self.softmax = nn.Softmax(1)
 
         def forward(self, user_id, embed_his, candidates):
 
@@ -52,9 +52,6 @@ class lstransformer(nn.Module):
             for i in range(candidates.shape[0]):
                 embed_cand[i] = self.newsencoder(candidates[i])
 
-            #print(embed_cand.shape)
-
-            embed_cand = th.ones((32,50,400))
 
 
             #Decode candidates with memory
@@ -62,7 +59,7 @@ class lstransformer(nn.Module):
             
             #Final layer
             out = self.outlayer(decoded)
-            # out = self.softmax(out)
+            out = self.softmax(out)
 
             return out
 

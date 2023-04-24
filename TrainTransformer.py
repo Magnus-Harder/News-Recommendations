@@ -3,7 +3,7 @@ from tqdm import tqdm
 import pickle as pkl
 
 from General.Utils import ValidateModel
-from DataIterator import NewsDataset
+from DataIteratorTransformer import NewsDataset
 from torch.utils.data import DataLoader
 
 
@@ -65,8 +65,8 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, train=True)
-TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False)
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index)
+TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
 
 
 
@@ -108,7 +108,18 @@ model = TransformerModule.to(device)
 optimizer = th.optim.Adam(model.parameters(), lr=0.0001)
 
 # Define Loss
-loss_fn = th.nn.CrossEntropyLoss()
+loss_fn = th.nn.BCEWithLogitsLoss()
+
+def get_masx(length, history_length,impressions_length):
+
+    history_mask = th.zeros(length)
+    impressions_mask = th.zeros(length)
+
+    history_mask[:history_length] = 1
+    impressions_mask[:impressions_length] = 1
+
+    return history_mask.bool(), impressions_mask.bool()
+
 
 #%%
 # Pre Training Validation step
@@ -119,10 +130,10 @@ with th.no_grad():
     preds_all = []
     loss_vali = []
 
-    vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=False)
-    i = 0
+    vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=True)
     for batch in tqdm(vali_batch_loader):
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
+
 
         user_id = user_id.to(device)
         history_title = history_title.to(device)
@@ -133,28 +144,22 @@ with th.no_grad():
         Scores = model(user_id, history_title, impressions_title)
         Scores = Scores.squeeze(-1)
 
-        if labels.shape[1] > 50:
-            labels = labels[:, :50]
-        elif labels.shape[1] < 50:
-            labels = th.cat((labels, th.zeros((labels.shape[0], 50 - labels.shape[1])).to(device)), dim=1)
+        print(Scores.argmax())
+        print(labels.argmax())
+        print(Scores[labels == 1])
 
-
-        loss = loss_fn(Scores, labels)
+        loss = loss_fn(Scores[:,:impressions_length.item()], labels[:,:impressions_length.item()])
         loss_vali.append(loss.item())
-        if sum(labels.squeeze(0).cpu().numpy()) == 0:
-            continue
+
         labels_all.append(labels.squeeze(0).cpu().numpy())
         preds_all.append(Scores.squeeze(0).detach().cpu().numpy())
-        i += 1
-        if i > 100:
-            break
-#%%
+
 
 Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
 Pre_training['loss'] = np.mean(loss_vali)
 
 print(Pre_training)
-
+#%%
 
 
 # %%
@@ -170,11 +175,11 @@ Loss_training = []
 for epoch in range(1):
     model.train(True)
 
-    train_data_loader = DataLoader(TrainData, batch_size=hparamsdata.batch_size, shuffle=True)
+    train_data_loader = DataLoader(TrainData, batch_size=1, shuffle=True)
     i = 0
     for batch in tqdm(train_data_loader):
 
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
 
         user_id = user_id.to(device)
         history_title = history_title.to(device)
@@ -184,11 +189,11 @@ for epoch in range(1):
 
         optimizer.zero_grad()
 
-        Scores = Scores.squeeze(-1)
+        
 
         Scores = model(user_id, history_title, impressions_title)
 
-        
+        Scores = Scores.squeeze(-1)
 
         loss = loss_fn(Scores,labels)
 
