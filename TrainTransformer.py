@@ -98,6 +98,7 @@ TransformerModule = lstransformer(his_size = 50,
                                   num_layers = 1, 
                                   newsencoder = newsencoder,
                                   user_vocab_size=uid2index.__len__() + 1,
+                                  device=device,
                                   dropout=0.1,
                                 )
 
@@ -149,7 +150,7 @@ with th.no_grad():
     preds_all = []
     loss_vali = []
 
-    batch_size_vali = 16
+    batch_size_vali = 1
 
     vali_batch_loader = DataLoader(TestData, batch_size=batch_size_vali, shuffle=False)
     for batch in tqdm(vali_batch_loader):
@@ -173,8 +174,8 @@ with th.no_grad():
             loss = loss_fn(Scores[i,:impressions_length[i].item()], labels[i,:impressions_length[i].item()])
             loss_vali.append(loss.item())
 
-            labels_all.append(labels[i].cpu().numpy())
-            preds_all.append(Scores[i].detach().cpu().numpy())
+            labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
+            preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
 
 
     Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
