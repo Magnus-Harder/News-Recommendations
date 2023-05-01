@@ -156,7 +156,9 @@ with th.no_grad():
     for batch in tqdm(vali_batch_loader):
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
 
-        history_mask, impressions_mask = get_mask_key(batch_size_vali,TestData.max_length, history_length, impressions_length)
+        batch_size = user_id.shape[0]
+
+        history_mask, impressions_mask = get_mask_key(batch_size,TestData.max_length, history_length, impressions_length)
 
         user_id = user_id.to(device)
         history_title = history_title.to(device)
@@ -182,7 +184,6 @@ with th.no_grad():
     Pre_training['loss'] = np.mean(loss_vali)
 
     print(Pre_training)
-#%%
 
 
 # %%
@@ -195,7 +196,7 @@ Loss_vali = [Pre_training['loss']]
 Loss_training = []
 
 
-for epoch in range(1):
+for epoch in range(5):
     model.train(True)
 
     train_data_loader = DataLoader(TrainData, batch_size=16, shuffle=True)
@@ -204,7 +205,9 @@ for epoch in range(1):
 
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
 
-        history_mask, impressions_mask = get_mask_key(16,TrainData.max_length, history_length, impressions_length)
+        batch_size = user_id.shape[0]
+
+        history_mask, impressions_mask = get_mask_key(batch_size,TrainData.max_length, history_length, impressions_length)
 
 
         user_id = user_id.to(device)
@@ -244,7 +247,9 @@ for epoch in range(1):
         for batch in tqdm(vali_batch_loader):
             user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
 
-            history_mask, impressions_mask = get_mask_key(batch_size_vali,TestData.max_length, history_length, impressions_length)
+            batch_size = user_id.shape[0]
+
+            history_mask, impressions_mask = get_mask_key(batch_size,TestData.max_length, history_length, impressions_length)
 
             user_id = user_id.to(device)
             history_title = history_title.to(device)
