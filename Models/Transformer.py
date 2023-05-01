@@ -6,7 +6,7 @@ from TestData.LSTURMind import NewsEncoder
 
 #%%
 class lstransformer(nn.Module):
-        def __init__(self, his_size, candidate_size ,d_model, ffdim, nhead, num_layers, newsencoder,user_vocab_size ,device,dropout=0.1):
+        def __init__(self, his_size, candidate_size ,d_model, ffdim, nhead, num_layers, newsencoder,user_vocab_size ,device,dropout=0.2):
             super().__init__()
             self.num_layers = num_layers
 
@@ -29,6 +29,13 @@ class lstransformer(nn.Module):
             self.outlayer = nn.Linear(d_model, 1)
             self.softmax = nn.Softmax(1)
 
+
+            # Dropout_layers
+            self.dropout1 = nn.Dropout(dropout)
+            self.dropout2 = nn.Dropout(dropout)
+            self.dropout3 = nn.Dropout(dropout)
+            self.dropout4 = nn.Dropout(dropout)
+
         def forward(self, user_id, embed_his,his_mask, candidates,cand_mask):
 
             # Encode history
@@ -37,13 +44,18 @@ class lstransformer(nn.Module):
             for i in range(embed_his.shape[0]):
                  encoded_his[i] = self.newsencoder(embed_his[i])
             
+            # Dropouts
+            encoded_his = self.dropout1(encoded_his)
+
             #embed_his = self.newsencoder(embed_his)
             memory = self.encoder(encoded_his, src_key_padding_mask = his_mask)
             users = self.UserEmbedding(user_id)
             # Add user embedding to memory
             for i in range(memory.shape[0]):
                 memory[i] = memory[i] + users[i]
-    
+
+            # dropouts
+            memory = self.dropout2(memory)
 
             # Type error bug fixing
             candidates = candidates
@@ -53,10 +65,14 @@ class lstransformer(nn.Module):
             for i in range(candidates.shape[0]):
                 embed_cand[i] = self.newsencoder(candidates[i])
 
-
+            #Dropouts
+            embed_cand = self.dropout3(embed_cand)
 
             #Decode candidates with memory
             decoded = self.decoder(embed_cand,memory,tgt_key_padding_mask = cand_mask)
+
+            #Dropouts
+            decoded = self.dropout4(decoded)
             
             #Final layer
             out = self.outlayer(decoded)

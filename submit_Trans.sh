@@ -22,4 +22,4 @@ module load cuda/11.7
 # NOTE: needs to have been built with the same SciPy version above!
 source venv_1/bin/activate
 
-python3 TrainTransformer.py
+python3 TrainTransformerCopy.py

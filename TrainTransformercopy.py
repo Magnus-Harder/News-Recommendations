@@ -93,13 +93,13 @@ impressions_length = 50
 TransformerModule = lstransformer(his_size = 50, 
                                   candidate_size = impressions_length,
                                   d_model = 400, 
-                                  ffdim = 100, 
-                                  nhead = 2, 
-                                  num_layers = 1, 
+                                  ffdim = 800, 
+                                  nhead = 6, 
+                                  num_layers = 3, 
                                   newsencoder = newsencoder,
                                   user_vocab_size=uid2index.__len__() + 1,
                                   device=device,
-                                  dropout=0.1,
+                                  dropout=0.2,
                                 )
 
 # Move to device
@@ -179,7 +179,6 @@ with th.no_grad():
             labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
             preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
 
-        break
     Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
     Pre_training['loss'] = np.mean(loss_vali)
 
@@ -236,7 +235,6 @@ for epoch in range(5):
 
             Loss_training.append(loss.item()/16)
 
-        break
     # Validation step
     with th.no_grad():
         model.eval()
