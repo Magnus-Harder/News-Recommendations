@@ -117,9 +117,9 @@ def get_mask_key(batch_size,data_length, actual_length):
 
 
     for _ in range(batch_size):
-        mask[_,actual_length[_]:] = 1
+        mask[_,actual_length[_]:] = float('-inf')
 
-    return mask.bool()
+    return mask
 
 
 #%%
