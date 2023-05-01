@@ -93,11 +93,11 @@ class NewsDataset(Dataset):
             return [int(label) for label in x]
         
         # Cut or pad history
-        def cut_or_pad(x):
-            if len(x) > self.max_length:
-                return x[-self.max_length:]
+        def cut_or_pad(x, length):
+            if len(x) > length:
+                return x[-length:]
             else:
-                return x + [0]*(self.max_length - len(x))
+                return x + [0]*(length - len(x))
 
         # Load news data
         self.news_data = pd.read_csv(news_file, sep='\t', header=None)
@@ -130,14 +130,13 @@ class NewsDataset(Dataset):
 
         # Get max lengths
         self.max_impressions_length = self.user_data['impressions_length'].max()
-        self.max_history_length = self.user_data['history_length'].max()
         self.max_length = max(self.max_history_length, self.max_impressions_length)
 
         
         # Cut or pad history
-        self.user_data['history_encoded'] = self.user_data['history_encoded'].apply(cut_or_pad)
-        self.user_data['impressions_encoded'] = self.user_data['impressions_encoded'].apply(cut_or_pad)
-        self.user_data['labels'] = self.user_data['labels'].apply(cut_or_pad)
+        self.user_data['history_encoded'] = self.user_data['history_encoded'].apply(lambda x: cut_or_pad(x, max_history_length))
+        #self.user_data['impressions_encoded'] = self.user_data['impressions_encoded'].apply(lambda x: cut_or_pad(x, self.max_impressions_length))
+        #self.user_data['labels'] = self.user_data['labels'].apply(lambda x: cut_or_pad(x, self.max_impressions_length))
 
         # Print max lengths
         print("Max history length: ", self.user_data['history_length'].max())
@@ -190,56 +189,5 @@ class NewsDataset(Dataset):
         impressions_abstract[impressions_length:,:] = 0
 
         return user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels
-
-#%%
-
-# Define Data, Dataset and DataLoaders
-train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
-train_news_file = 'Data/MINDdemo_train/news.tsv'
-word_dict_file = 'Data/MINDdemo_utils/word_dict_all.pkl'
-user_dict_file = 'Data/MINDdemo_utils/uid2index.pkl'
-
-valid_behaviors_file = 'Data/MINDdemo_dev/behaviors.tsv'
-valid_news_file = 'Data/MINDdemo_dev/news.tsv'
-
-
-import pickle
-
-with open ("Data/MINDdemo_utils/word_dict.pkl", "rb") as f:
-    word_dict = pickle.load(f)
-with open ("Data/MINDdemo_utils/uid2index.pkl", "rb") as f:
-    uid2index = pickle.load(f)
-
-from dataclasses import dataclass
-
-@dataclass
-class HyperParams:
-    batch_size: int
-    title_size: int
-    his_size: int
-    wordDict_file: str
-    userDict_file: str
-
-hparamsdata = HyperParams(
-    batch_size=32,
-    title_size=20,
-    his_size=50,
-    wordDict_file=word_dict_file,
-    userDict_file=user_dict_file,
-)
-
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index)
-TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
-
-#%%
-
-# Define DataLoaders
-train_loader = DataLoader(TrainData, batch_size=hparamsdata.batch_size, shuffle=False, num_workers=0)
-
-
-for batch in train_loader:
-    user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
-    break
-
-
+    
 # %%

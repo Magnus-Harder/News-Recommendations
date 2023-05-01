@@ -3,7 +3,8 @@ from tqdm import tqdm
 import pickle as pkl
 
 from General.Utils import ValidateModel
-from DataIteratorTransformerTest import NewsDataset
+from DataIteratorTransformer import NewsDataset
+from DataIterator import NewsDataset as NewsDatasetOld
 from torch.utils.data import DataLoader
 
 
@@ -65,7 +66,7 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index)
+TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, train=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
 
 
@@ -90,11 +91,11 @@ from Models.Transformer import lstransformer
 impressions_length = 50
 
 
-TransformerModule = lstransformer(his_size = 50, 
+TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
                                   candidate_size = impressions_length,
                                   d_model = 400, 
                                   ffdim = 800, 
-                                  nhead = 6, 
+                                  nhead = 1, 
                                   num_layers = 3, 
                                   newsencoder = newsencoder,
                                   user_vocab_size=uid2index.__len__() + 1,
@@ -109,36 +110,18 @@ model = TransformerModule.to(device)
 optimizer = th.optim.Adam(model.parameters(), lr=0.0001)
 
 # Define Loss
-loss_fn = th.nn.BCEWithLogitsLoss()
+loss_fn = th.nn.CrossEntropyLoss()
+loss_vali = th.nn.BCELoss()
 
+def get_mask_key(batch_size,data_length, actual_length):
 
-def loss_train(Scores,labels,impressions_length):
-    loss = 0
-    for i in range(Scores.shape[0]):
-        loss += loss_fn(Scores[i,:impressions_length[i].item()], labels[i,:impressions_length[i].item()])
-    return loss
+    mask = th.zeros((batch_size,data_length))
 
-def get_mask(batch_size,length, history_length,impressions_length):
-
-    history_mask = th.zeros((batch_size,length,length))
-    impressions_mask = th.zeros((batch_size,length,length))
 
     for _ in range(batch_size):
-        history_mask[_,history_length[_]:,0] = float('-inf')
-        impressions_mask[_,impressions_length[_]:,0] = float('-inf')
+        mask[_,actual_length[_]:] = 1
 
-    return history_mask, impressions_mask
-
-def get_mask_key(batch_size,length, history_length,impressions_length):
-
-    history_mask = th.zeros((batch_size,length))
-    impressions_mask = th.zeros((batch_size,length))
-
-    for _ in range(batch_size):
-        history_mask[_,history_length[_]:] = 1
-        impressions_mask[_,impressions_length[_]:] = 1
-
-    return history_mask.bool(), impressions_mask.bool()
+    return mask.bool()
 
 
 #%%
@@ -156,19 +139,19 @@ with th.no_grad():
     for batch in tqdm(vali_batch_loader):
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
 
-        #batch_size = user_id.shape[0]
+        batch_size = user_id.shape[0]
 
-        #history_mask, impressions_mask = get_mask_key(batch_size,TestData.max_length, history_length, impressions_length)
+        history_mask = get_mask_key(batch_size,hparamsdata.his_size, history_length)
 
         user_id = user_id.to(device)
         history_title = history_title.to(device)
         history_length = history_length.to(device)
         impressions_title = impressions_title.to(device)
         labels = labels.to(device)
-        #history_mask = history_mask.to(device)
-        #impressions_mask = impressions_mask.to(device)
+        history_mask = history_mask.to(device)
 
-        Scores = model(user_id, history_title, None, impressions_title, None)
+
+        Scores = model(user_id, history_title, None,history_mask, impressions_title, None, None)
         Scores = Scores.squeeze(-1)
 
         for i in range(batch_size_vali):
@@ -178,6 +161,7 @@ with th.no_grad():
 
             labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
             preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
+        
 
     Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
     Pre_training['loss'] = np.mean(loss_vali)
@@ -199,41 +183,36 @@ Loss_training = []
 for epoch in range(5):
     model.train(True)
 
-    batch_size_train = 16
+    batch_size_train = hparamsdata.batch_size
 
-    train_data_loader = DataLoader(TrainData, batch_size=1, shuffle=True)
+    train_data_loader = DataLoader(TrainData, batch_size=hparamsdata.batch_size, shuffle=True)
 
-    i = 0
 
     for batch in tqdm(train_data_loader):
-
-        i += 1
-        if i % batch_size_train == 1:
-            optimizer.zero_grad()
+        optimizer.zero_grad()
             
-            loss = th.tensor(0.0,device=device)
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels,n_positive = batch
 
+        batch_size = user_id.shape[0]
 
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
+        history_mask = get_mask_key(batch_size,hparamsdata.his_size, history_length)
+
 
         user_id = user_id.to(device)
         history_title = history_title.to(device)
         history_length = history_length.to(device)
         impressions_title = impressions_title.to(device)
         labels = labels.to(device)
+        history_mask = history_mask.to(device)
 
-        Scores = model(user_id, history_title, None, impressions_title, None)
-        Scores = Scores.squeeze(-1)
+        Scores = model(user_id, history_title, None,history_mask, impressions_title, None, None)
 
-        loss += loss_fn(Scores, labels)
+        loss = loss_fn(Scores, labels.argmax(dim=1).reshape(-1,1))
 
-        if i % batch_size_train == 0:
+        loss.backward()
 
-            loss.backward()
+        optimizer.step()
 
-            optimizer.step()
-
-            Loss_training.append(loss.item()/16)
 
     # Validation step
     with th.no_grad():
@@ -243,19 +222,25 @@ for epoch in range(5):
         preds_all = []
         loss_vali = []
 
+        batch_size_vali = 1
 
         vali_batch_loader = DataLoader(TestData, batch_size=batch_size_vali, shuffle=False)
-
         for batch in tqdm(vali_batch_loader):
             user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
+
+            batch_size = user_id.shape[0]
+
+            history_mask = get_mask_key(batch_size,hparamsdata.his_size, history_length)
 
             user_id = user_id.to(device)
             history_title = history_title.to(device)
             history_length = history_length.to(device)
             impressions_title = impressions_title.to(device)
             labels = labels.to(device)
+            history_mask = history_mask.to(device)
 
-            Scores = model(user_id, history_title, None, impressions_title, None)
+
+            Scores = model(user_id, history_title, None,history_mask, impressions_title, None, None)
             Scores = Scores.squeeze(-1)
 
             for i in range(batch_size_vali):
@@ -263,10 +248,9 @@ for epoch in range(5):
                 loss = loss_fn(Scores[i,:impressions_length[i].item()], labels[i,:impressions_length[i].item()])
                 loss_vali.append(loss.item())
 
-                labels_all.append(labels[i].cpu().numpy())
-                preds_all.append(Scores[i].detach().cpu().numpy())
+                labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
+                preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
             
-
 
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
         result['loss'] = np.mean(loss_vali)

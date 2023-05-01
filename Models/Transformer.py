@@ -5,10 +5,38 @@ import math
 from TestData.LSTURMind import NewsEncoder
 
 #%%
+class PositionalEncoding(nn.Module):
+    def __init__(self, T, d_model):
+        super().__init__()
+
+        # Define needed built in functions and parameters
+        self.d_model = d_model
+        self.T = T
+        self.PositionalEncoding = nn.Parameter(th.zeros((int(T), int(d_model))), requires_grad=False)
+        self.init_positional_encoding()
+
+    # Initialize positional encoding matrix
+    def init_positional_encoding(self):
+        position = th.arange(0, self.T, dtype=th.float).unsqueeze(1)
+        div_term = th.exp(th.arange(0, self.d_model, 2,dtype=th.float) * (-th.log(th.tensor([10000.0])) / self.d_model))
+        self.PositionalEncoding[:, 0::2] = th.sin(position * div_term)
+        self.PositionalEncoding[:, 1::2] = th.cos(position * div_term)
+
+    # Add positional encoding to input
+    def forward(self, X):
+        return X + self.PositionalEncoding
+
+
+
+
+
 class lstransformer(nn.Module):
         def __init__(self, his_size, candidate_size ,d_model, ffdim, nhead, num_layers, newsencoder,user_vocab_size ,device,dropout=0.2):
             super().__init__()
             self.num_layers = num_layers
+
+            # Positional encoding
+            self.positional_encoding = PositionalEncoding(his_size,d_model)
 
             # Encoder 
             self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
@@ -29,14 +57,13 @@ class lstransformer(nn.Module):
             self.outlayer = nn.Linear(d_model, 1)
             self.softmax = nn.Softmax(1)
 
-
             # Dropout_layers
             self.dropout1 = nn.Dropout(dropout)
             self.dropout2 = nn.Dropout(dropout)
             self.dropout3 = nn.Dropout(dropout)
             self.dropout4 = nn.Dropout(dropout)
 
-        def forward(self, user_id, embed_his,his_mask, candidates,cand_mask):
+        def forward(self, user_id, embed_his,his_mask,his_key_mask, candidates,cand_mask,cand_key_mask):
 
             # Encode history
             encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400),device=self.device)
@@ -48,7 +75,7 @@ class lstransformer(nn.Module):
             encoded_his = self.dropout1(encoded_his)
 
             #embed_his = self.newsencoder(embed_his)
-            memory = self.encoder(encoded_his, src_key_padding_mask = his_mask)
+            memory = self.encoder(encoded_his, mask = his_mask, src_key_padding_mask = his_key_mask)
             users = self.UserEmbedding(user_id)
             # Add user embedding to memory
             for i in range(memory.shape[0]):
@@ -57,8 +84,6 @@ class lstransformer(nn.Module):
             # dropouts
             memory = self.dropout2(memory)
 
-            # Type error bug fixing
-            candidates = candidates
 
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)
             
@@ -69,14 +94,13 @@ class lstransformer(nn.Module):
             embed_cand = self.dropout3(embed_cand)
 
             #Decode candidates with memory
-            decoded = self.decoder(embed_cand,memory,tgt_key_padding_mask = cand_mask)
+            decoded = self.decoder(embed_cand,memory,tgt_mask = cand_mask,tgt_key_padding_mask = cand_key_mask)
 
             #Dropouts
             decoded = self.dropout4(decoded)
             
             #Final layer
             out = self.outlayer(decoded)
-            out = self.softmax(out)
 
             return out
 
