@@ -66,7 +66,7 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, train=True,transformer=True)
+TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=9, train=True,transformer=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
 
 
@@ -88,11 +88,9 @@ newsencoder = NewsEncoder(attention_dim = hparams['model']['attention_hidden_dim
 #%%
 # Import Model
 from Models.Transformer import lstransformer
-impressions_length = 50
 
 
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
-                                  candidate_size = impressions_length,
                                   d_model = 400, 
                                   ffdim = 800, 
                                   nhead = 1, 

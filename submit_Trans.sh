@@ -1,7 +1,7 @@
 #!/bin/sh
-#BSUB -J Mind
-#BSUB -o Mind_%J.out
-#BSUB -e Mind_%J.err
+#BSUB -J Trans
+#BSUB -o Trans_%J.out
+#BSUB -e Trans_%J.err
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -n 1
@@ -22,4 +22,4 @@ module load cuda/11.7
 # NOTE: needs to have been built with the same SciPy version above!
 source venv_1/bin/activate
 
-python3 TrainTransformerCopy.py
+python3 FitTransformer.py
