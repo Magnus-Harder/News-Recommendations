@@ -63,7 +63,7 @@ class lstransformer(nn.Module):
             self.dropout3 = nn.Dropout(dropout)
             self.dropout4 = nn.Dropout(dropout)
 
-        def forward(self, user_id, embed_his,his_mask,his_key_mask, candidates,cand_mask,cand_key_mask):
+        def forward(self, user_id, embed_his, his_key_mask, candidates):
 
             # Encode history
             encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400),device=self.device)
@@ -78,7 +78,7 @@ class lstransformer(nn.Module):
             encoded_his = self.positional_encoding(encoded_his)
 
             #embed_his = self.newsencoder(embed_his)
-            memory = self.encoder(encoded_his, mask = his_mask, src_key_padding_mask = his_key_mask)
+            memory = self.encoder(encoded_his, src_key_padding_mask = his_key_mask)
             users = self.UserEmbedding(user_id)
             # Add user embedding to memory
             for i in range(memory.shape[0]):
@@ -97,7 +97,7 @@ class lstransformer(nn.Module):
             embed_cand = self.dropout3(embed_cand)
 
             #Decode candidates with memory
-            decoded = self.decoder(embed_cand,memory,tgt_mask = cand_mask,tgt_key_padding_mask = cand_key_mask)
+            decoded = self.decoder(embed_cand,memory)
 
             #Dropouts
             decoded = self.dropout4(decoded)

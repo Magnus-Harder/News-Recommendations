@@ -113,11 +113,12 @@ loss_vali = th.nn.BCELoss()
 
 def get_mask_key(batch_size,data_length, actual_length):
 
-    mask = th.zeros((batch_size,data_length))
+    mask = th.zeros((batch_size,data_length),dtype=th.bool)
 
 
     for _ in range(batch_size):
-        mask[_,actual_length[_]:] = float('-inf')
+        mask[_,actual_length[_]:] = 1
+    mask = mask.bool()
 
     return mask
 
@@ -149,7 +150,7 @@ with th.no_grad():
         history_mask = history_mask.to(device)
 
 
-        Scores = model(user_id, history_title, None,history_mask, impressions_title, None, None)
+        Scores = model(user_id, history_title, history_mask, impressions_title)
         Scores = Scores.squeeze(-1)
 
         for i in range(batch_size_vali):
@@ -203,7 +204,7 @@ for epoch in range(5):
         labels = labels.to(device)
         history_mask = history_mask.to(device)
 
-        Scores = model(user_id, history_title, None,history_mask, impressions_title, None, None)
+        Scores = model(user_id, history_title, history_mask, impressions_title)
 
         loss = loss_fn(Scores, labels.argmax(dim=1).reshape(-1,1))
 
@@ -238,7 +239,7 @@ for epoch in range(5):
             history_mask = history_mask.to(device)
 
 
-            Scores = model(user_id, history_title, None,history_mask, impressions_title, None, None)
+            Scores = model(user_id, history_title,history_mask, impressions_title)
             Scores = Scores.squeeze(-1)
 
             for i in range(batch_size_vali):
