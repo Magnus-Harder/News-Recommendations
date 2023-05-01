@@ -66,7 +66,7 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, train=True)
+TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, train=True,transformer=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
 
 

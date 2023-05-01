@@ -21,7 +21,7 @@ with open('Data/MINDdemo_utils/word_dict_all.pkl', 'rb') as f:
 
 
 class NewsDataset(Dataset):
-    def __init__(self, user_file, news_file, word_dict_file, max_history_length=50, max_title_length=20, max_abstract_length=100,userid_dict = None,train=True, npratio=4, mask_prob= 0.5,device='cpu'):
+    def __init__(self, user_file, news_file, word_dict_file, max_history_length=50, max_title_length=20, max_abstract_length=100,userid_dict = None,train=True, npratio=4, mask_prob= 0.5,device='cpu',transformer=False):
         
         self.device = device
         self.mask_prob = mask_prob
@@ -30,6 +30,7 @@ class NewsDataset(Dataset):
         self.max_title_length = max_title_length
         self.max_abstract_length = max_abstract_length
         self.npratio = npratio
+        self.transformer = transformer
         # load_word_dict
         with open(word_dict_file, 'rb') as f:
             self.word_dict = pickle.load(f)
@@ -222,6 +223,16 @@ class NewsDataset(Dataset):
 
             # Get impressions length
             impressions_length = len(impressions)
+
+            # Shuffle impressions if Transformer
+            if self.transformer:
+                shuffle_idx = np.arange(impressions_length)
+                np.random.shuffle(shuffle_idx)
+                impressions = impressions[shuffle_idx]
+                impressions_title = [impressions_title[i] for i in shuffle_idx]
+                impressions_abstract = [impressions_abstract[i] for i in shuffle_idx]
+                labels = labels[shuffle_idx]
+
 
         else:
             # Get impressions as title as one long sequence
