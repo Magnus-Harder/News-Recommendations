@@ -1,0 +1,7 @@
+Max history length:  351
+Max impressions length:  295
+{'group_auc': 0.4928, 'mean_mrr': 0.2183, 'ndcg@5': 0.2215, 'ndcg@10': 0.2845, 'loss': 5.173627931322463}
+Memory: 1.413480448 GB
+{'group_auc': 0.5645, 'mean_mrr': 0.2418, 'ndcg@5': 0.2619, 'ndcg@10': 0.3248, 'loss': 5.506142133952772}
+Memory: 1.413480448 GB
+{'group_auc': 0.5602, 'mean_mrr': 0.2448, 'ndcg@5': 0.2681, 'ndcg@10': 0.3271, 'loss': 5.142544792522438}
