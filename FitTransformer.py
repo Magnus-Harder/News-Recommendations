@@ -66,7 +66,7 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=9, train=True,transformer=True)
+TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, train=True,transformer=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
 
 
@@ -92,8 +92,8 @@ from Models.Transformer import lstransformer
 
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
                                   d_model = 400, 
-                                  ffdim = 800, 
-                                  nhead = 1, 
+                                  ffdim = 1200, 
+                                  nhead = 8, 
                                   num_layers = 3, 
                                   newsencoder = newsencoder,
                                   user_vocab_size=uid2index.__len__() + 1,
@@ -179,7 +179,7 @@ Loss_vali = [Pre_training['loss']]
 Loss_training = []
 
 
-for epoch in range(5):
+for epoch in range(20):
     model.train(True)
 
     batch_size_train = hparamsdata.batch_size
