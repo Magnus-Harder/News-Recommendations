@@ -2,9 +2,7 @@
 from tqdm import tqdm
 import pickle as pkl
 
-from General.Utils import ValidateModel
-from DataIteratorTransformer import NewsDataset
-from DataIterator import NewsDataset as NewsDatasetOld
+from DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 
 
@@ -26,6 +24,7 @@ word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 word_embedding = word_embedding.astype(np.float32)
 
+th.manual_seed(2021)
 
 # %%
 # Define Device
@@ -66,8 +65,8 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDatasetOld(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=9, train=True,transformer=True)
-TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=4, train=True,transformer=True)
+TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False)
 
 
 
@@ -136,7 +135,7 @@ with th.no_grad():
 
     vali_batch_loader = DataLoader(TestData, batch_size=batch_size_vali, shuffle=False)
     for batch in tqdm(vali_batch_loader):
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, _ = batch
 
         batch_size = user_id.shape[0]
 
@@ -227,7 +226,7 @@ for epoch in range(5):
 
         vali_batch_loader = DataLoader(TestData, batch_size=batch_size_vali, shuffle=False)
         for batch in tqdm(vali_batch_loader):
-            user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels = batch
+            user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, _ = batch
 
             batch_size = user_id.shape[0]
 
@@ -270,3 +269,4 @@ for epoch in range(5):
 # Saving Training Logs
 with open('TrainTransformer.pkl', 'wb') as f:
     pickle.dump([Loss_training,AUC,MRR,NDCG5,NDCG10,Loss_vali], f)
+# %%
