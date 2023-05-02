@@ -212,6 +212,8 @@ for epoch in range(5):
 
         optimizer.step()
 
+        Loss_training.append(loss.item())
+
 
     # Validation step
     with th.no_grad():
