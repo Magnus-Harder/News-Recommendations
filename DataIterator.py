@@ -21,7 +21,7 @@ with open('Data/MINDdemo_utils/word_dict_all.pkl', 'rb') as f:
 
 
 class NewsDataset(Dataset):
-    def __init__(self, user_file, news_file, word_dict_file, max_history_length=50, max_title_length=20, max_abstract_length=100,userid_dict = None,train=True, npratio=4, mask_prob= 0.5,device='cpu',transformer=False):
+    def __init__(self, user_file, news_file, word_dict_file, max_history_length=50, max_title_length=30, max_abstract_length=100,userid_dict = None,train=True, npratio=4, mask_prob= 0.5,device='cpu',transformer=False):
         
         self.device = device
         self.mask_prob = mask_prob

@@ -59,14 +59,14 @@ class HyperParams:
 
 hparamsdata = HyperParams(
     batch_size=32,
-    title_size=20,
+    title_size=30,
     his_size=50,
     wordDict_file=word_dict_file,
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index)
-TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index)
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index, max_title_length=30)
+TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, max_title_length=30)
 
 
 
