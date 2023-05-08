@@ -14,7 +14,7 @@ import numpy as np
 import yaml
 
 # Import Hparam
-with open('Data/MINDdemo_utils/lstur.yaml','r') as stream:
+with open('Transformerhparam.yaml','r') as stream:
     hparams = yaml.safe_load(stream)
 
 # Import word_vec
@@ -58,25 +58,25 @@ class HyperParams:
     userDict_file: str
 
 hparamsdata = HyperParams(
-    batch_size=32,
-    title_size=20,
-    his_size=50,
+    batch_size=hparams['train']['batch_size'],
+    title_size=hparams['data']['title_length'],
+    his_size=hparams['data']['history_length'],
     wordDict_file=word_dict_file,
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=4, train=True,transformer=True)
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=hparams['data']['npratio'], train=True,transformer=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False)
 
 
 
 from TestData.LSTURMind import NewsEncoder
-newsencoder = NewsEncoder(attention_dim = hparams['model']['attention_hidden_dim'],
-                        word_emb_dim = hparams['model']['word_emb_dim'],
-                        dropout = hparams['model']['dropout'],
-                        filter_num = hparams['model']['filter_num'],
-                        windows_size = hparams['model']['window_size'],
-                        gru_unit = hparams['model']['gru_unit'],
+newsencoder = NewsEncoder(attention_dim = hparams['model']['News Encoder']['attention_hidden_dim'],
+                        word_emb_dim = hparams['model']['News Encoder']['word_emb_dim'],
+                        dropout = hparams['model']['News Encoder']['dropout'],
+                        filter_num = hparams['model']['News Encoder']['filter_num'],
+                        windows_size = hparams['model']['News Encoder']['window_size'],
+                        gru_unit = hparams['model']['News Encoder']['filter_num'],
                         word_vectors = word_embedding,
                         device = device
                         )   
@@ -90,14 +90,14 @@ from Models.Transformer import lstransformer
 
 
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
-                                  d_model = 400, 
-                                  ffdim = 800, 
-                                  nhead = 1, 
-                                  num_layers = 3, 
+                                  d_model = hparams['model']['Transformer']['d_model'], 
+                                  ffdim = hparams['model']['Transformer']['dff'], 
+                                  nhead = hparams['model']['Transformer']['num_heads'], 
+                                  num_layers = hparams['model']['Transformer']['num_layers'], 
                                   newsencoder = newsencoder,
                                   user_vocab_size=uid2index.__len__() + 1,
                                   device=device,
-                                  dropout=0.2,
+                                  dropout=hparams['model']['Transformer']['dropout'],
                                 )
 
 # Move to device
