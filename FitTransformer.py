@@ -104,7 +104,7 @@ TransformerModule = lstransformer(his_size = hparamsdata.his_size,
 model = TransformerModule.to(device)
 
 # Define Optimizer
-optimizer = th.optim.Adam(model.parameters(), lr=0.0001)
+optimizer = th.optim.Adam(model.parameters(), lr=0.00001)
 
 # Define Loss
 loss_fn = th.nn.CrossEntropyLoss()
@@ -178,7 +178,7 @@ Loss_vali = [Pre_training['loss']]
 Loss_training = []
 
 
-for epoch in range(5):
+for epoch in range(hparams['train']['epochs']):
     model.train(True)
 
     batch_size_train = hparamsdata.batch_size
@@ -267,6 +267,6 @@ for epoch in range(5):
 # %%
 
 # Saving Training Logs
-with open('TrainTransformer.pkl', 'wb') as f:
+with open('TrainTransformer100.pkl', 'wb') as f:
     pickle.dump([Loss_training,AUC,MRR,NDCG5,NDCG10,Loss_vali], f)
 # %%
