@@ -82,6 +82,8 @@ if hparams['model']['Transformer']['model'] == 'Additive':
     from ModelsTransformer.TransformerAdditive import lstransformer
 elif hparams['model']['Transformer']['model'] == 'Ini':
     from ModelsTransformer.TransformerIni import lstransformer
+elif hparams['model']['Transformer']['model'] == 'IniDot':
+    from ModelsTransformer.TransformerIniDot import lstransformer
 
 
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 

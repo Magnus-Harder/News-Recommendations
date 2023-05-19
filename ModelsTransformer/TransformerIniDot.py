@@ -118,15 +118,15 @@ class lstransformer(nn.Module):
             decoded = self.dropout4(decoded)
 
             V_cand = decoded[:,1:,:]
-            V_user = decoded[:,0,:].unsqueeze(1)
+            V_user = decoded[:,0,:]
 
-            print(V_cand.shape)
-            print(V_user.shape)
+            scores = th.bmm(V_cand,V_user.unsqueeze(2)).squeeze(2)
+
             
             #Final layer
-            out = self.outlayer(decoded)
+            #out = self.outlayer(decoded)
 
-            return out[:,1:]
+            return scores
 
 
 
