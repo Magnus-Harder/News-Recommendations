@@ -1,0 +1,4 @@
+Importing Model... Additive
+{'group_auc': 0.5101, 'mean_mrr': 0.2135, 'ndcg@5': 0.2163, 'ndcg@10': 0.284, 'loss': 5.167187941696015}
+Memory: 2.864709632 GB
+{'group_auc': 0.5821, 'mean_mrr': 0.2456, 'ndcg@5': 0.2679, 'ndcg@10': 0.3366, 'loss': 5.1205484415205795}
