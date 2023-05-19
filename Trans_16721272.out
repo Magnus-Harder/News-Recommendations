@@ -1,0 +1,4 @@
+Importing Model... IniDot
+{'group_auc': 0.8148, 'mean_mrr': 0.1667, 'ndcg@5': 0.0, 'ndcg@10': 0.3562, 'loss': 4.997433662414551}
+Memory: 2.847932416 GB
+{'group_auc': 0.5285, 'mean_mrr': 0.2252, 'ndcg@5': 0.231, 'ndcg@10': 0.2988, 'loss': 5.15381006177949}
