@@ -265,5 +265,5 @@ for epoch in range(hparams['train']['epochs']):
 # Saving Training Logs
 filestring = f'EvaluationTranformer{hparams["model"]["Transformer"]["model"]}.pkl'
 with open(filestring, 'wb') as f:
-    pkl.dump([result], f)
+    pkl.dump([Evaluation_dict], f)
 # %%
