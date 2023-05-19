@@ -1,0 +1,2 @@
+Importing Model... IniDot
+{'group_auc': 0.5012, 'mean_mrr': 0.2142, 'ndcg@5': 0.2142, 'ndcg@10': 0.2804, 'loss': 22.99948978600533}
