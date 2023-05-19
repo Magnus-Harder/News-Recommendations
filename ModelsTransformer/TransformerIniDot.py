@@ -120,8 +120,7 @@ class lstransformer(nn.Module):
             V_cand = decoded[:,1:,:]
             V_user = decoded[:,0,:]
 
-            scores = th.bmm(V_cand,V_user.unsqueeze(2)).squeeze(2)
-
+            scores = th.bmm(V_cand,V_user.unsqueeze(2))
             
             #Final layer
             #out = self.outlayer(decoded)
