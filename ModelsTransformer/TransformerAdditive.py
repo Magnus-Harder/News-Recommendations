@@ -1,8 +1,7 @@
 #%%
 import torch as th
 from torch import nn
-import math
-from TestData.LSTURMind import NewsEncoder
+from ModelsTransformer.NewsEncoder import NewsEncoder
 
 #%%
 class PositionalEncoding(nn.Module):
@@ -31,7 +30,7 @@ class PositionalEncoding(nn.Module):
 
 
 class lstransformer(nn.Module):
-        def __init__(self, his_size, d_model, ffdim, nhead, num_layers, newsencoder,user_vocab_size ,device,dropout=0.2):
+        def __init__(self, his_size, d_model, ffdim, nhead, num_layers, user_vocab_size, attention_dim, word_emb_dim, filter_num, window_size, word_vectors ,device,dropout=0.2):
             super().__init__()
             self.num_layers = num_layers
 
@@ -48,7 +47,7 @@ class lstransformer(nn.Module):
             
 
             #Newsencoder and userembedder
-            self.newsencoder = newsencoder
+            self.newsencoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, window_size, word_vectors, device)
             self.UserEmbedding = nn.Embedding(user_vocab_size, d_model ,padding_idx=0)
 
             self.device = device
@@ -69,7 +68,7 @@ class lstransformer(nn.Module):
             # (Batch_zize, his_size, title_size, embed_size)
 
             # (batch_size * his_size, title_size, embed_size)
-            embede_his = embed_his.reshape(-1, 30, 300)
+            #embede_his = embed_his.reshape(-1, 30, 300)
 
             encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400),device=self.device)
 

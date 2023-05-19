@@ -25,10 +25,11 @@ model:
     num_heads: 4
     dff: 1200
     dropout: 0.2
+    model: "Additive"
 
 train:
   batch_size: 128
-  epochs: 75
+  epochs: 10
   learning_rate: 0.0001
   optimizer: Adam
   loss: CrossEntropyLoss
