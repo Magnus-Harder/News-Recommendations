@@ -144,7 +144,7 @@ Loss_training = []
 for epoch in range(hparams['train']['epochs']):
     model.train(True)
 
-    train_data_loader = DataLoader(TrainData, batch_size=8, shuffle=True)
+    train_data_loader = DataLoader(TrainData, batch_size=hparams['train']['batch_size'], shuffle=True)
 
     for batch in tqdm(train_data_loader):
 
