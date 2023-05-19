@@ -144,14 +144,6 @@ Evaluation_dict = {
 }
 
 
-AUC = [Pre_training['group_auc']]
-MRR = [Pre_training['mean_mrr']]
-NDCG5 = [Pre_training['ndcg@5']]
-NDCG10 = [Pre_training['ndcg@10']]
-loss_vali = [Pre_training['loss']]
-Loss_training = []
-
-
 for epoch in range(hparams['train']['epochs']):
     model.train(True)
 
