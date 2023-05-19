@@ -77,6 +77,7 @@ TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, us
 
 #%%
 # Import Model
+print('Importing Model...', hparams['model']['Transformer']['model'])
 if hparams['model']['Transformer']['model'] == 'Additive':
     from ModelsTransformer.TransformerAdditive import lstransformer
 elif hparams['model']['Transformer']['model'] == 'Ini':
@@ -206,7 +207,6 @@ for epoch in range(hparams['train']['epochs']):
 
         Evaluation_dict['Loss_training'].append(loss.item())
 
-        break
 
     # Validation step
     with th.no_grad():
@@ -245,7 +245,6 @@ for epoch in range(hparams['train']['epochs']):
                 labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
                 preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
             
-            break
 
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
         result['loss'] = np.mean(loss_vali)
