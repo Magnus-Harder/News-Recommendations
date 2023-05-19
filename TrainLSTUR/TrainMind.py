@@ -5,7 +5,7 @@ import torch as th
 import numpy as np
 import yaml
 import pickle
-import random
+
 
 # Load from Scripts
 from DataLoaders.DataIterator import NewsDataset
@@ -26,7 +26,7 @@ hparamsmodel = hparams['model']
 
 # %%
 # Define Device
-device = 'cuda' if th.cuda.is_available() else 'mps'
+device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
 train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
@@ -36,7 +36,6 @@ user_dict_file = 'Data/MINDdemo_utils/uid2index.pkl'
 
 valid_behaviors_file = 'Data/MINDdemo_dev/behaviors.tsv'
 valid_news_file = 'Data/MINDdemo_dev/news.tsv'
-
 
 
 with open ("Data/MINDdemo_utils/word_dict.pkl", "rb") as f:
@@ -62,8 +61,8 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=hparams['data']['npratio'],device = 'mps', train=True,transformer=False)
-TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False, device = 'mps',transformer=False)
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=hparams['data']['npratio'],device = device, train=True,transformer=False)
+TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False, device = device,transformer=False)
 
 # %%
 from ModelsLSTUR.LSTURini import LSTURini
@@ -114,7 +113,6 @@ with th.no_grad():
         labels_all.append(labels.cpu().squeeze(0).numpy())
         preds_all.append(Scores.cpu().squeeze(0).detach().numpy())
 
-        break
     
     Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
     Pre_training['loss'] = np.mean(loss_vali)
@@ -162,7 +160,7 @@ for epoch in range(hparams['train']['epochs']):
 
         Evaluation_dict['Loss_training'].append(loss.item())
         optimizer.zero_grad()
-        break
+
     
     with th.no_grad():
         model.eval()
@@ -183,9 +181,7 @@ for epoch in range(hparams['train']['epochs']):
 
             labels_all.append(labels.cpu().squeeze(0).numpy())
             preds_all.append(Scores.cpu().squeeze(0).detach().numpy())
-
-
-            break    
+  
         
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
         result['loss'] = np.mean(loss_vali)
