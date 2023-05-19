@@ -79,6 +79,8 @@ TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, us
 # Import Model
 if hparams['model']['Transformer']['model'] == 'Additive':
     from ModelsTransformer.TransformerAdditive import lstransformer
+elif hparams['model']['Transformer']['model'] == 'Ini':
+    from ModelsTransformer.TransformerIni import lstransformer
 
 
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
