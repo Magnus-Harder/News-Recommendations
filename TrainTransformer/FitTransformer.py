@@ -6,17 +6,17 @@ import torch as th
 import numpy as np
 import yaml
 
+# Add path
+import sys
+import os
+
+sys.path.insert(1,os.getcwd())
+
 # Import Self-Defined Modules
 from DataLoaders.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 from TestData.MindDependencies.Metrics import cal_metric
 
-# Add path
-import sys
-import os
-
-print(os.getcwd())
-sys.path.insert(1,os.getcwd())
 
 # Import Hparam
 with open('hparams/Transformerhparam.yaml','r') as stream:
@@ -77,7 +77,7 @@ TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, us
 
 #%%
 # Import Model
-if hparams['model']['Transformer']['additive']:
+if hparams['model']['Transformer']['model'] == 'Additive':
     from ModelsTransformer.TransformerAdditive import lstransformer
 
 
