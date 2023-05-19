@@ -26,7 +26,7 @@ hparamsmodel = hparams['model']
 
 # %%
 # Define Device
-device = 'cuda' if th.cuda.is_available() else 'cpu'
+device = 'cuda' if th.cuda.is_available() else 'mps'
 
 # Define Data, Dataset and DataLoaders
 train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
@@ -62,8 +62,8 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=hparams['data']['npratio'], train=True,transformer=True)
-TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False)
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=hparams['data']['npratio'],device = 'mps', train=True,transformer=False)
+TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False, device = 'mps',transformer=False)
 
 # %%
 from ModelsLSTUR.LSTURini import LSTURini
@@ -111,10 +111,10 @@ with th.no_grad():
         loss = loss_fn(Scores, labels)
         loss_vali.append(loss.item())
     
-        labels_all.append(labels.squeeze(0).numpy())
-        preds_all.append(Scores.squeeze(0).detach().numpy())
+        labels_all.append(labels.cpu().squeeze(0).numpy())
+        preds_all.append(Scores.cpu().squeeze(0).detach().numpy())
 
-        
+        break
     
     Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
     Pre_training['loss'] = np.mean(loss_vali)
@@ -146,13 +146,11 @@ Loss_training = []
 for epoch in range(hparams['train']['epochs']):
     model.train(True)
 
-    train_data_loader = DataLoader(TrainData, batch_size=hparamsdata.batch_size, shuffle=True)
+    train_data_loader = DataLoader(TrainData, batch_size=8, shuffle=True)
 
     for batch in tqdm(train_data_loader):
 
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
-
-        optimizer.zero_grad()
 
         Scores = model(user_id, history_title, history_length, impressions_title)
 
@@ -163,6 +161,8 @@ for epoch in range(hparams['train']['epochs']):
         optimizer.step()
 
         Evaluation_dict['Loss_training'].append(loss.item())
+        optimizer.zero_grad()
+        break
     
     with th.no_grad():
         model.eval()
@@ -181,12 +181,12 @@ for epoch in range(hparams['train']['epochs']):
             loss = loss_fn(Scores, labels)
             loss_vali.append(loss.item())
 
-            labels_all.append(labels.squeeze(0).numpy())
-            preds_all.append(Scores.squeeze(0).detach().numpy())
+            labels_all.append(labels.cpu().squeeze(0).numpy())
+            preds_all.append(Scores.cpu().squeeze(0).detach().numpy())
 
 
-            
-
+            break    
+        
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
         result['loss'] = np.mean(loss_vali)
 
