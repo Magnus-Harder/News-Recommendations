@@ -1,5 +1,7 @@
 #%%
 # Load Packages
+print('Loading Packages...')
+
 from tqdm import tqdm
 import torch as th
 import numpy as np
@@ -7,6 +9,15 @@ import yaml
 import pickle
 
 
+# Add path
+import sys
+import os
+
+print(os.getcwd())
+sys.path.insert(1,os.getcwd())
+
+
+#%%
 # Load from Scripts
 from DataLoaders.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
