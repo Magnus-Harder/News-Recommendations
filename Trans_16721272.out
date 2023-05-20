@@ -2,3 +2,21 @@ Importing Model... IniDot
 {'group_auc': 0.8148, 'mean_mrr': 0.1667, 'ndcg@5': 0.0, 'ndcg@10': 0.3562, 'loss': 4.997433662414551}
 Memory: 2.847932416 GB
 {'group_auc': 0.5285, 'mean_mrr': 0.2252, 'ndcg@5': 0.231, 'ndcg@10': 0.2988, 'loss': 5.15381006177949}
+Memory: 2.847932416 GB
+{'group_auc': 0.5343, 'mean_mrr': 0.2263, 'ndcg@5': 0.2342, 'ndcg@10': 0.301, 'loss': 5.156824041298643}
+Memory: 2.847932416 GB
+{'group_auc': 0.5419, 'mean_mrr': 0.2295, 'ndcg@5': 0.2386, 'ndcg@10': 0.3056, 'loss': 5.157717713735993}
+Memory: 2.847932416 GB
+{'group_auc': 0.5385, 'mean_mrr': 0.2283, 'ndcg@5': 0.2373, 'ndcg@10': 0.3043, 'loss': 5.158658675182085}
+Memory: 2.847932416 GB
+{'group_auc': 0.5479, 'mean_mrr': 0.2311, 'ndcg@5': 0.2408, 'ndcg@10': 0.3075, 'loss': 5.158970988194961}
+Memory: 2.847932416 GB
+{'group_auc': 0.5481, 'mean_mrr': 0.2285, 'ndcg@5': 0.2399, 'ndcg@10': 0.3077, 'loss': 5.158223088468592}
+Memory: 2.847932416 GB
+{'group_auc': 0.5451, 'mean_mrr': 0.2283, 'ndcg@5': 0.2383, 'ndcg@10': 0.3065, 'loss': 5.158400768151313}
+Memory: 2.847932416 GB
+{'group_auc': 0.5548, 'mean_mrr': 0.2327, 'ndcg@5': 0.2443, 'ndcg@10': 0.3117, 'loss': 5.157589043275629}
+Memory: 2.847932416 GB
+{'group_auc': 0.5543, 'mean_mrr': 0.2317, 'ndcg@5': 0.2442, 'ndcg@10': 0.3113, 'loss': 5.154811472184169}
+Memory: 2.847932416 GB
+{'group_auc': 0.5575, 'mean_mrr': 0.2321, 'ndcg@5': 0.2442, 'ndcg@10': 0.3119, 'loss': 5.148239873710261}
