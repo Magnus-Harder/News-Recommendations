@@ -84,8 +84,13 @@ elif hparams['model']['Transformer']['model'] == 'Ini':
     from ModelsTransformer.TransformerIni import lstransformer
 elif hparams['model']['Transformer']['model'] == 'IniDot':
     from ModelsTransformer.TransformerIniDot import lstransformer
+elif hparams['model']['Transformer']['model'] == 'NoMem':
+    from ModelsTransformer.TransformernoMem import lstransformer
+elif hparams['model']['Transformer']['model'] == 'UserEmb':
+    from ModelsTransformer.TransformerUserEmb import lstransformer
+    hparamsdata.his_size += 1
 
-
+#%%
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
                                   d_model = hparams['model']['Transformer']['d_model'], 
                                   ffdim = hparams['model']['Transformer']['dff'], 
@@ -115,7 +120,9 @@ def get_mask_key(batch_size,data_length, actual_length,device='cpu'):
 
     mask = th.zeros((batch_size,data_length),dtype=th.bool,device=device)
 
-
+    if hparams['model']['Transformer']['model'] == 'UserEmb':
+        actual_length += 1
+              
     for _ in range(batch_size):
         mask[_,actual_length[_]:] = 1
     mask = mask.bool()
@@ -208,7 +215,6 @@ for epoch in range(hparams['train']['epochs']):
         optimizer.step()
 
         Evaluation_dict['Loss_training'].append(loss.item())
-
 
     # Validation step
     with th.no_grad():
