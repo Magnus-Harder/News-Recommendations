@@ -1,0 +1,6 @@
+Importing Model... NoMem
+{'group_auc': 0.5087, 'mean_mrr': 0.2119, 'ndcg@5': 0.2113, 'ndcg@10': 0.2805, 'loss': 5.179037541809257}
+Memory: 2.84164096 GB
+{'group_auc': 0.5736, 'mean_mrr': 0.2398, 'ndcg@5': 0.256, 'ndcg@10': 0.326, 'loss': 5.128992826839491}
+Memory: 2.84164096 GB
+{'group_auc': 0.5795, 'mean_mrr': 0.2517, 'ndcg@5': 0.277, 'ndcg@10': 0.34, 'loss': 5.118257362830777}
