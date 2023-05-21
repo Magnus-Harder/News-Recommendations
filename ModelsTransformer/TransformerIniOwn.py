@@ -2,6 +2,7 @@
 import torch as th
 from torch import nn
 from ModelsTransformer.NewsEncoder import NewsEncoder
+import math
 
 #%%
 class PositionalEncoding(nn.Module):
@@ -25,7 +26,143 @@ class PositionalEncoding(nn.Module):
     def forward(self, X):
         return X + self.PositionalEncoding
 
+# Define Attention class
+class Attention(nn.Module):
+    def __init__(self, dk,dropout=0.1):
+        super().__init__()
 
+        # Define needed built in functions
+        self.Softmax = nn.Softmax(dim=2)
+        self.sqrt_dk = math.sqrt(dk)
+        self.dropout = nn.Dropout(dropout)
+        
+    def forward(self,Q,K,V,mask=None):
+    
+        # Query key dot product
+        QK = th.bmm(Q,K.transpose(1,2)) / self.sqrt_dk
+       
+        QK = self.dropout(QK)
+        
+        A_w = self.Softmax(QK)
+
+
+        # Apply mask if not None
+        if mask is not None:
+            A_w_masked = th.zeros_like(A_w)
+            for batch in range(mask.shape[0]):
+                A_w_masked[batch] = A_w[batch] * ~mask[batch]
+            
+            print(A_w_masked[0])
+            return th.bmm(A_w_masked,V)
+
+        # Get attention weights
+        A =  th.bmm(A_w,V)
+
+        return A
+
+
+# Define multi head attention
+class MHA(nn.Module):
+    def __init__(self,T, d_model,dk=256,dv=512, nhead = 8,dropout=0.1):
+        super().__init__()
+        self.Softmax = nn.Softmax(dim=1)
+        self.nhead = nhead
+        self.dk = dk
+        self.dv = dv
+        self.T = T
+        
+        # Define Q,K,V 
+        self.Qs = nn.Linear(d_model,int(dk))
+        self.Ks = nn.Linear(d_model ,int(dk))
+        self.Vs = nn.Linear(d_model,int(dv))
+
+        # Define attention layer
+        self.Attention = Attention(dk,dropout)
+
+        # Define output layer    
+        self.out = nn.Linear(int(dv),d_model)
+
+    def forward(self,Q,K,V,mask=None):
+
+        # Intialize Q,K,V
+        Qs = self.Qs(Q)
+        Ks = self.Ks(K)
+        Vs = self.Vs(V)        
+ 
+        # Get each attention heads
+        A = self.Attention(Qs,Ks,Vs,mask) 
+        
+        # Apply linear layer to get input dimensions
+        return self.out(A)
+
+
+# Define Feedforward class
+class Feedforward(nn.Module):
+    def __init__(self, d_model, d_ff,dropout=0.1):
+        super().__init__()
+        self.d_model = d_model
+        self.d_ff = d_ff
+        self.Linear1 = nn.Linear(d_model,d_ff)
+        self.Linear2 = nn.Linear(d_ff,d_model)
+        self.ReLU = nn.ReLU()
+        self.dropout = nn.Dropout(dropout)
+    def forward(self,X):
+        return self.Linear2(self.ReLU(self.Linear1(X)))
+
+# Define LayerNorm class
+class LayerNorm(nn.Module):
+    def __init__(self, d_model):
+        super().__init__()
+        #self.d_model = d_model
+        self.LayerNorm = nn.LayerNorm(d_model)
+    def forward(self,X):
+        return self.LayerNorm(X)
+
+
+# Define Encoder layer
+class EncoderLayer(nn.Module):
+    def __init__(self,T, d_model, nhead, d_ff, dk, dv, dropout=0.1):
+        super().__init__()
+
+        # Define needed layers
+        self.MHA = MHA(T, d_model, dk, dv, nhead)
+        self.LayerNorm1 = LayerNorm(d_model)
+        self.Feedforward = Feedforward(d_model, d_ff)
+        self.LayerNorm2 = LayerNorm(d_model)
+        self.dropout1 = nn.Dropout(dropout)
+        self.dropout2 = nn.Dropout(dropout)
+
+    def forward(self,X,mask=None):
+        
+        # Get multi head attention
+        mha = self.MHA(X,X,X,mask)
+
+        # Add residual and normalize
+        X = self.LayerNorm1(self.dropout1(mha) + X)
+
+        # Get feedforward
+        X = self.Feedforward(X)
+
+        # Add residual and normalize
+        memory = self.LayerNorm2(X + self.dropout2(X))
+
+        return memory 
+
+# Define Encoder class
+class Encoder(nn.Module):
+    def __init__(self, T, d_model, nhead, d_ff, num_layers,dk,dv, dropout=0.1):
+        super().__init__()
+
+        # Define encoder layers
+        self.encoders = nn.ModuleList([EncoderLayer(T, d_model, nhead, d_ff, dk, dv, dropout) for _ in range(num_layers)])
+
+    def forward(self, X, mask=None):
+
+        # Pass through each encoder layer
+        for encoder in self.encoders:
+            X = encoder(X, mask)
+
+        return X
 
 
 
@@ -38,8 +175,7 @@ class lstransformer(nn.Module):
             self.positional_encoding = PositionalEncoding(his_size,d_model)
 
             # Encoder 
-            self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
-            self.encoder = nn.TransformerEncoder(encoder_layer = self.encoderlayer, num_layers = self.num_layers)
+            self.encoder = Encoder(his_size, d_model, nhead, ffdim, num_layers,dk=256,dv=512, dropout=dropout)
             
             # Decoder
             self.decoderlayer = nn.TransformerDecoderLayer(d_model, nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
@@ -78,7 +214,7 @@ class lstransformer(nn.Module):
             encoded_his = self.positional_encoding(encoded_his)
 
             #embed_his = self.newsencoder(embed_his)
-            memory = self.encoder(encoded_his, src_key_padding_mask = his_key_mask)
+            memory = self.encoder(encoded_his, mask = his_key_mask)
             
 
             # dropouts
