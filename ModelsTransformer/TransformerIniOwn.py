@@ -32,24 +32,31 @@ class Attention(nn.Module):
         super().__init__()
 
         # Define needed built in functions
-        self.Softmax = nn.Softmax(dim=1)
+        self.Softmax = nn.Softmax(dim=2)
         self.sqrt_dk = math.sqrt(dk)
         self.dropout = nn.Dropout(dropout)
         
     def forward(self,Q,K,V,mask=None):
     
         # Query key dot product
-        QK = Q @ th.transpose(K,1,2) / self.sqrt_dk
+        QK = th.bmm(Q,K.transpose(1,2)) / self.sqrt_dk
+       
         QK = self.dropout(QK)
+        
+        A_w = self.Softmax(QK)
+
 
         # Apply mask if not None
         if mask is not None:
-            QK = QK + mask
-            print(QK.shape)
-            print(mask.shape)
+            A_w_masked = th.zeros_like(A_w)
+            for batch in range(mask.shape[0]):
+                A_w_masked[batch] = A_w[batch] * ~mask[batch]
+            
+            print(A_w_masked[0])
+            return th.bmm(A_w_masked,V)
 
         # Get attention weights
-        A = th.transpose(self.Softmax(th.transpose(QK,1,2)),1,2) @ V
+        A =  th.bmm(A_w,V)
 
         return A
 
@@ -65,31 +72,25 @@ class MHA(nn.Module):
         self.T = T
         
         # Define Q,K,V 
-        self.Qs = nn.Linear(d_model,int(dk*nhead))
-        self.Ks = nn.Linear(d_model,int(dk*nhead))
-        self.Vs = nn.Linear(d_model,int(dv*nhead))
+        self.Qs = nn.Linear(d_model,int(dk))
+        self.Ks = nn.Linear(d_model ,int(dk))
+        self.Vs = nn.Linear(d_model,int(dv))
 
         # Define attention layer
         self.Attention = Attention(dk,dropout)
 
         # Define output layer    
-        self.out = nn.Linear(int(dv*nhead),d_model)
+        self.out = nn.Linear(int(dv),d_model)
 
     def forward(self,Q,K,V,mask=None):
 
         # Intialize Q,K,V
         Qs = self.Qs(Q)
         Ks = self.Ks(K)
-        Vs = self.Vs(V)
-
-        # Reshape Q,K,V to batch heads
-        Qs = th.transpose(Qs.reshape(self.nhead,self.dk,self.T),1,2)
-        Ks = th.transpose(Ks.reshape(self.nhead,self.dk,self.T),1,2)
-        Vs = th.transpose(Vs.reshape(self.nhead,self.dv,self.T),1,2)
-
+        Vs = self.Vs(V)        
+ 
         # Get each attention heads
-        A = self.Attention(Qs,Ks,Vs,mask)
-        A = th.transpose(A,1,-1).reshape(-1,self.T).T        
+        A = self.Attention(Qs,Ks,Vs,mask) 
         
         # Apply linear layer to get input dimensions
         return self.out(A)
