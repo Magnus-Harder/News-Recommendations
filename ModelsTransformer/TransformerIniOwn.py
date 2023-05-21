@@ -52,7 +52,6 @@ class Attention(nn.Module):
             for batch in range(mask.shape[0]):
                 A_w_masked[batch] = A_w[batch] * ~mask[batch]
             
-            print(A_w_masked[0])
             return th.bmm(A_w_masked,V)
 
         # Get attention weights
@@ -246,12 +245,3 @@ class lstransformer(nn.Module):
 
             return out[:,1:]
 
-
-
-
-
-
-
-
-
-# %%
