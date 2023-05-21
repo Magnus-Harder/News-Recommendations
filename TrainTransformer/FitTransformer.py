@@ -89,6 +89,15 @@ elif hparams['model']['Transformer']['model'] == 'NoMem':
 elif hparams['model']['Transformer']['model'] == 'UserEmb':
     from ModelsTransformer.TransformerUserEmb import lstransformer
     hparamsdata.his_size += 1
+elif hparams['model']['Transformer']['model'] == 'UserEmbDot':
+    from ModelsTransformer.TransformerUserEmbDot import lstransformer
+    hparamsdata.his_size += 1
+elif hparams['model']['Transformer']['model'] == 'IniOwn':
+    from ModelsTransformer.TransformerIniOwn import lstransformer
+elif hparams['model']['Transformer']['model'] == 'IniLSTUR':
+    from ModelsTransformer.TransformerIniLSTUR import lstransformer
+
+
 
 #%%
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
@@ -215,7 +224,7 @@ for epoch in range(hparams['train']['epochs']):
         optimizer.step()
 
         Evaluation_dict['Loss_training'].append(loss.item())
-
+    
     # Validation step
     with th.no_grad():
         model.eval()

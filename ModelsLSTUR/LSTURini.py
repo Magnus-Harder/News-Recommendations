@@ -112,14 +112,15 @@ class NewsEncoder(nn.Module):
 
 # Define the user encoder
 class UserEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit,user_size, word_vectors, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit,user_size, word_vectors, NewsEncoder, device="cpu"):
         super(UserEncoder, self).__init__()
 
         # User embedding
         self.UserEmbedding = nn.Embedding(user_size, gru_unit,padding_idx=0)
         
         # News Encoder
-        self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device)
+        self.NewsEncoder = NewsEncoder
+        #self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device)
         
         # GRU
         self.gru = nn.GRU(  input_size = filter_num, 
@@ -163,11 +164,12 @@ class LSTURini(nn.Module):
     def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, word_vectors ,device="cpu"):
         super(LSTURini, self).__init__()
 
-        # User Encoder
-        self.UserEncoder = UserEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, word_vectors, device)
         
         # News Encoder
         self.NewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device)
+
+        # User Encoder
+        self.UserEncoder = UserEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, user_size, word_vectors,  self.NewsEncoder, device)
         
         # Device
         self.device = device

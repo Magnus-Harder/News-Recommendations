@@ -36,6 +36,7 @@ class lstransformer(nn.Module):
 
             # Positional encoding
             self.positional_encoding = PositionalEncoding(his_size,d_model)
+            self.w = 0.5
 
             # Encoder 
             self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
@@ -71,6 +72,7 @@ class lstransformer(nn.Module):
                  encoded_his[i] = self.newsencoder(embed_his[i])
 
 
+            
             # Dropouts
             encoded_his = self.dropout1(encoded_his)
 
@@ -88,7 +90,8 @@ class lstransformer(nn.Module):
             # dropouts
             memory = self.dropout2(memory)
 
-            User_emb = 0.5 * users + 0.5 * memory.mean(dim=1)
+            # Maybe make w a trainable parameter
+            User_emb = self.w * users + (1-self.w) * memory.mean(dim=1)
 
 
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)
@@ -108,11 +111,14 @@ class lstransformer(nn.Module):
 
             #Dropouts
             decoded = self.dropout4(decoded)
+
+            #Dropouts
+            decoded = self.dropout4(decoded)
             
             #Final layer
-            out = self.outlayer(decoded)
+            out = th.bmm(decoded,User_emb.unsqueeze(2))
 
-            return out[:,1:]
+            return out
 
 
 

@@ -25,11 +25,11 @@ model:
     num_heads: 8
     dff: 2400
     dropout: 0.2
-    model: "UserEmb"
+    model: "UserEmbDot"
 
 train:
   batch_size: 128
-  epochs: 50
+  epochs: 10
   learning_rate: 0.0001
   optimizer: Adam
   loss: CrossEntropyLoss

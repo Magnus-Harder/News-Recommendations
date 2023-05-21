@@ -65,26 +65,17 @@ class lstransformer(nn.Module):
         def forward(self, user_id, embed_his, his_key_mask, candidates):
 
             # Encode history
-            # (Batch_zize, his_size, title_size, embed_size)
-
-            # (batch_size * his_size, title_size, embed_size)
-            #embede_his = embed_his.reshape(-1, 30, 300)
-
             encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400),device=self.device)
 
             for i in range(embed_his.shape[0]):
                  encoded_his[i] = self.newsencoder(embed_his[i])
-
-            # encoded_his
-            # (batch_size * his_size, 400)
-            # (batch_size, his_size, 400)
             
             
             # Dropouts
             encoded_his = self.dropout1(encoded_his)
 
             # Add positional encoding to history
-            #encoded_his = self.positional_encoding(encoded_his)
+            encoded_his = self.positional_encoding(encoded_his)
 
             #embed_his = self.newsencoder(embed_his)
             memory = self.encoder(encoded_his, src_key_padding_mask = his_key_mask)
@@ -95,23 +86,18 @@ class lstransformer(nn.Module):
             # dropouts
             memory = self.dropout2(memory)
 
-
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)
-            
             for i in range(candidates.shape[0]):
                 embed_cand[i] = self.newsencoder(candidates[i])
 
+            # Embed user id
             users = self.UserEmbedding(user_id)
-            
 
             #Dropouts
             embed_cand = self.dropout3(embed_cand)
 
             # Add user embedding to front of candidates
-            
             User_embed_cant = th.cat((users.unsqueeze(1),embed_cand),dim=1)
-
-                
 
             #Decode candidates with memory
             decoded = self.decoder(User_embed_cant,memory)
