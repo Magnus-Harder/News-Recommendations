@@ -2,3 +2,13 @@ Importing Model... IniLSTUR
 {'group_auc': 0.4994, 'mean_mrr': 0.2159, 'ndcg@5': 0.2232, 'ndcg@10': 0.2817, 'loss': 5.199737460575058}
 Memory: 2.910846976 GB
 {'group_auc': 0.5613, 'mean_mrr': 0.2358, 'ndcg@5': 0.2505, 'ndcg@10': 0.3186, 'loss': 5.156530318157804}
+Memory: 2.910846976 GB
+{'group_auc': 0.5884, 'mean_mrr': 0.2685, 'ndcg@5': 0.2936, 'ndcg@10': 0.3519, 'loss': 5.144305887737076}
+Memory: 2.910846976 GB
+{'group_auc': 0.5923, 'mean_mrr': 0.2626, 'ndcg@5': 0.287, 'ndcg@10': 0.3492, 'loss': 5.127824243418644}
+Memory: 2.910846976 GB
+{'group_auc': 0.5922, 'mean_mrr': 0.2671, 'ndcg@5': 0.2913, 'ndcg@10': 0.3512, 'loss': 5.131993779586533}
+Memory: 2.910846976 GB
+{'group_auc': 0.5881, 'mean_mrr': 0.2468, 'ndcg@5': 0.2697, 'ndcg@10': 0.3338, 'loss': 5.227874692987958}
+Memory: 2.910846976 GB
+{'group_auc': 0.5981, 'mean_mrr': 0.2621, 'ndcg@5': 0.2905, 'ndcg@10': 0.3496, 'loss': 5.122140451375936}
