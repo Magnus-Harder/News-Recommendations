@@ -2,3 +2,11 @@ Importing Model... UserEmb
 {'group_auc': 0.4735, 'mean_mrr': 0.2122, 'ndcg@5': 0.2098, 'ndcg@10': 0.2762, 'loss': 5.183128934074764}
 Memory: 3.829399552 GB
 {'group_auc': 0.5725, 'mean_mrr': 0.2388, 'ndcg@5': 0.2582, 'ndcg@10': 0.3236, 'loss': 5.158031331172344}
+Memory: 3.829399552 GB
+{'group_auc': 0.5843, 'mean_mrr': 0.2477, 'ndcg@5': 0.2706, 'ndcg@10': 0.3347, 'loss': 5.1868096182824965}
+Memory: 3.829399552 GB
+{'group_auc': 0.5726, 'mean_mrr': 0.2414, 'ndcg@5': 0.2583, 'ndcg@10': 0.3275, 'loss': 5.360286409218923}
+Memory: 3.829399552 GB
+{'group_auc': 0.5865, 'mean_mrr': 0.2443, 'ndcg@5': 0.2673, 'ndcg@10': 0.3327, 'loss': 5.247393947057604}
+Memory: 3.829399552 GB
+{'group_auc': 0.5769, 'mean_mrr': 0.2426, 'ndcg@5': 0.2655, 'ndcg@10': 0.3286, 'loss': 5.228309299642932}
