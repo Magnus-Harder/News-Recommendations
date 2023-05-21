@@ -114,7 +114,6 @@ class lstransformer(nn.Module):
 
             # Get history length
             his_length = self.his_size - th.sum(his_key_mask,dim=1)
-            print(his_length)
 
             user_rep, memory = self.userencoder(user_id, embed_his, his_length)
 

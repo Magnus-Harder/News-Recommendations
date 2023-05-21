@@ -1,0 +1,6 @@
+Importing Model... Ini
+{'group_auc': 0.4785, 'mean_mrr': 0.2153, 'ndcg@5': 0.2143, 'ndcg@10': 0.2809, 'loss': 5.18039409716924}
+Memory: 3.810525184 GB
+{'group_auc': 0.5634, 'mean_mrr': 0.2351, 'ndcg@5': 0.25, 'ndcg@10': 0.3181, 'loss': 5.158225484266522}
+Memory: 3.810525184 GB
+{'group_auc': 0.5631, 'mean_mrr': 0.2291, 'ndcg@5': 0.2443, 'ndcg@10': 0.3164, 'loss': 5.256939875186709}

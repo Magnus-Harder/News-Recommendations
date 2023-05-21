@@ -1,0 +1,2 @@
+Importing Model... Ini
+{'group_auc': 0.4785, 'mean_mrr': 0.2153, 'ndcg@5': 0.2143, 'ndcg@10': 0.2809, 'loss': 5.18039409716924}
