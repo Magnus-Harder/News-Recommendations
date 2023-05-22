@@ -1,0 +1,38 @@
+/bin/bash: Submit/submit_Trans.sh: Permission denied
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 16723165: <NONAME> in cluster <dcc> Exited
+
+Job <NONAME> was submitted from host <gbarlogin1> by user <s204117> in cluster <dcc> at Sun May 21 21:16:42 2023
+Job was executed on host(s) <n-62-31-5>, in queue <hpc>, as user <s204117> in cluster <dcc> at Sun May 21 21:16:44 2023
+</zhome/34/e/155680> was used as the home directory.
+</work3/s204117/News-Recommendations> was used as the working directory.
+Started at Sun May 21 21:16:44 2023
+Terminated at Sun May 21 21:16:44 2023
+Results reported at Sun May 21 21:16:44 2023
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+Submit/submit_Trans.sh
+------------------------------------------------------------
+
+Exited with exit code 126.
+
+Resource usage summary:
+
+    CPU time :                                   0.37 sec.
+    Max Memory :                                 -
+    Average Memory :                             -
+    Total Requested Memory :                     1024.00 MB
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              -
+    Max Threads :                                -
+    Run time :                                   3 sec.
+    Turnaround time :                            2 sec.
+
+The output (if any) is above this job summary.
+

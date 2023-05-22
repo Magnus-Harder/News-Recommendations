@@ -21,11 +21,11 @@ model:
 
   Transformer:
     d_model: 400
-    num_layers: 4
+    num_layers: 3
     num_heads: 8
     dff: 2400
     dropout: 0.2
-    model: "IniOwn"
+    model: "UserEmb"
 
 train:
   batch_size: 128

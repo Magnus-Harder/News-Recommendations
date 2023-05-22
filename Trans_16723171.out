@@ -1,0 +1,10 @@
+Importing Model... UserEmb
+{'group_auc': 0.4688, 'mean_mrr': 0.2126, 'ndcg@5': 0.2112, 'ndcg@10': 0.2746, 'loss': 5.20540002671}
+Memory: 3.441426432 GB
+{'group_auc': 0.5523, 'mean_mrr': 0.2253, 'ndcg@5': 0.2406, 'ndcg@10': 0.3097, 'loss': 5.181862559597673}
+Memory: 3.441426432 GB
+{'group_auc': 0.5696, 'mean_mrr': 0.2366, 'ndcg@5': 0.2522, 'ndcg@10': 0.3222, 'loss': 5.177640692545348}
+Memory: 3.441426432 GB
+{'group_auc': 0.5699, 'mean_mrr': 0.2388, 'ndcg@5': 0.2553, 'ndcg@10': 0.3233, 'loss': 5.190296581915714}
+Memory: 3.441426432 GB
+{'group_auc': 0.5789, 'mean_mrr': 0.2384, 'ndcg@5': 0.2614, 'ndcg@10': 0.3265, 'loss': 5.202604798508913}
