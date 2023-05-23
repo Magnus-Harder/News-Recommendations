@@ -75,7 +75,7 @@ class lstransformer(nn.Module):
             encoded_his = self.dropout1(encoded_his)
 
             # Add positional encoding to history
-            encoded_his = self.positional_encoding(encoded_his)
+            #encoded_his = self.positional_encoding(encoded_his)
 
             #embed_his = self.newsencoder(embed_his)
             memory = self.encoder(encoded_his, src_key_padding_mask = his_key_mask)
