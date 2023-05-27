@@ -1,4 +1,4 @@
-Loading Packages...
+Loading Packages... LSTUR
 /work3/s204117/News-Recommendations
 cuda
 {'group_auc': 0.4897, 'mean_mrr': 0.2139, 'ndcg@5': 0.2142, 'ndcg@10': 0.2814, 'loss': 5.168811584685072}
