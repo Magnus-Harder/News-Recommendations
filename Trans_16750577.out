@@ -1,0 +1,2 @@
+Importing Model... UserEmb
+{'group_auc': 0.4759, 'mean_mrr': 0.2125, 'ndcg@5': 0.2098, 'ndcg@10': 0.277, 'loss': 5.179152232973284}
