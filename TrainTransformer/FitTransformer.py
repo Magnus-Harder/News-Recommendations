@@ -29,7 +29,7 @@ word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 word_embedding = word_embedding.astype(np.float32)
 
-th.manual_seed(2021)
+#th.manual_seed(2021)
 
 # %%
 # Define Device
