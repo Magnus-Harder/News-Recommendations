@@ -142,3 +142,6 @@ torchtext_data6B
 
 # Ignore model files
 *.pt
+
+# Data files
+Data/MIND_large_test/
