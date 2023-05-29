@@ -33,6 +33,7 @@ class lstransformer(nn.Module):
         def __init__(self, his_size, d_model, ffdim, nhead, num_layers, user_vocab_size, attention_dim, word_emb_dim, filter_num, window_size, word_vectors ,device,dropout=0.2):
             super().__init__()
             self.num_layers = num_layers
+            self.w = 0.5
 
             # Positional encoding
             self.positional_encoding = PositionalEncoding(his_size,d_model)
@@ -88,7 +89,8 @@ class lstransformer(nn.Module):
             # dropouts
             memory = self.dropout2(memory)
 
-            User_emb = 0.5 * users + 0.5 * memory.mean(dim=1)
+            # w is trainable parameter (0-1)
+            User_emb = self.w * users + (1-self.w) * memory.mean(dim=1)
 
 
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)

@@ -25,6 +25,8 @@ model:
     num_heads: 8
     dff: 2400
     dropout: 0.2
+    model: "Ini"
+    DualEncoder: False
     model: "IniLSTUR"
 
 train:
