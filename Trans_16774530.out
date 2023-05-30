@@ -1,0 +1,12 @@
+Importing Model... Ini
+nheads: 2
+num_layers: 1
+dff: 1200
+Hparam set 1
+{'group_auc': 0.5101, 'mean_mrr': 0.2205, 'ndcg@5': 0.2243, 'ndcg@10': 0.2891, 'loss': 5.202391001689816}
+Memory: 2.868903936 GB
+{'group_auc': 0.556, 'mean_mrr': 0.2281, 'ndcg@5': 0.2435, 'ndcg@10': 0.3141, 'loss': 5.164227642036654}
+Memory: 2.868903936 GB
+{'group_auc': 0.5734, 'mean_mrr': 0.2388, 'ndcg@5': 0.261, 'ndcg@10': 0.327, 'loss': 5.147273590776818}
+Memory: 2.868903936 GB
+{'group_auc': 0.572, 'mean_mrr': 0.2424, 'ndcg@5': 0.2609, 'ndcg@10': 0.3288, 'loss': 5.1602931187552254}
