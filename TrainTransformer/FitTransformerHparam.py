@@ -35,7 +35,7 @@ hparams_sets = pd.read_csv('hparams/hparamsets.txt', sep=',', index_col=0)
 
 # Set nheads, num_layers, dff it specified in hparams
 if hparams['model']['Transformer']['set'] != 'None':
-    hparams['model']['Transformer']['nheads'] = hparams_sets.loc[hparams['model']['Transformer']['set'],'nheads']
+    hparams['model']['Transformer']['num_heads'] = hparams_sets.loc[hparams['model']['Transformer']['set'],'nheads']
     hparams['model']['Transformer']['num_layers'] = hparams_sets.loc[hparams['model']['Transformer']['set'],'num_layers']
     hparams['model']['Transformer']['dff'] = hparams_sets.loc[hparams['model']['Transformer']['set'],'dff']
 
