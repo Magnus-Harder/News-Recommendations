@@ -22,4 +22,9 @@ module load cuda/11.7
 # NOTE: needs to have been built with the same SciPy version above!
 source venv_1/bin/activate
 
+touch temp.txt
+
+echo 16 > temp.txt
+
+
 python3 TrainTransformer/FitTransformerHparam.py

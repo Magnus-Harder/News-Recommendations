@@ -29,6 +29,13 @@ word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
 word_embedding = word_embedding.astype(np.float32)
 
+# read first line in temp.txt
+with open('temp.txt','r') as f:
+    line = f.readline()
+    set_nr = eval(line)
+    hparams['model']['Transformer']['set'] = set_nr
+#%%
+
 # import hparams sets
 import pandas as pd
 hparams_sets = pd.read_csv('hparams/hparamsets.txt', sep=',', index_col=0)
