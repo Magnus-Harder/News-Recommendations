@@ -26,7 +26,7 @@ model:
     dff: 2400
     dropout: 0.2
     model: "Ini"
-    set: 1
+    set: 5
 
 train:
   batch_size: 128
