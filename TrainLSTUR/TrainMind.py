@@ -72,8 +72,8 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
-TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=hparams['data']['npratio'],device = device, train=True,transformer=False)
-TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, train=False, device = device,transformer=False)
+TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=None,npratio=hparams['data']['npratio'],device = device, train=True,transformer=False)
+TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=TrainData.userid_dict, train=False, device = device,transformer=False)
 
 # %%
 from ModelsLSTUR.LSTURini import LSTURini
