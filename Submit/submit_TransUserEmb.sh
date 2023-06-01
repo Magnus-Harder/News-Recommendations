@@ -24,6 +24,6 @@ source venv_1/bin/activate
 
 touch tempmodel.txt
 
-echo "UserEmb" > temp.txt
+echo "UserEmb" > tempmodel.txt
 
 python3 TrainTransformer/FitTransformer.py

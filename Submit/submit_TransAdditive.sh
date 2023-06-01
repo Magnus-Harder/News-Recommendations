@@ -24,6 +24,6 @@ source venv_1/bin/activate
 
 touch tempmodel.txt
 
-echo "Additive" > temp.txt
+echo "Additive" > tempmodel.txt
 
 python3 TrainTransformer/FitTransformer.py
