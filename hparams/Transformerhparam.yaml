@@ -21,12 +21,12 @@ model:
 
   Transformer:
     d_model: 400
-    num_layers: 4
-    num_heads: 8
-    dff: 2400
+    num_layers: 2
+    num_heads: 4
+    dff: 1200
     dropout: 0.2
     model: "Ini"
-    set: 3
+    set: "None"
 
 train:
   batch_size: 128

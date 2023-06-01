@@ -36,13 +36,13 @@ word_embedding = word_embedding.astype(np.float32)
 device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
-train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
+train_behaviors_file = 'Data/MINDsubdemo_train/behaviors.tsv'
 train_news_file = 'Data/MINDdemo_train/news.tsv'
 word_dict_file = 'Data/MINDdemo_utils/word_dict_all.pkl'
 user_dict_file = 'Data/MINDdemo_utils/uid2index.pkl'
 
-valid_behaviors_file = 'Data/MINDdemo_dev/behaviors.tsv'
-valid_news_file = 'Data/MINDdemo_dev/news.tsv'
+valid_behaviors_file = 'Data/MINDdemo_opt/behaviors.tsv'
+valid_news_file = 'Data/MINDdemo_train/news.tsv'
 
 
 with open ("Data/MINDdemo_utils/word_dict.pkl", "rb") as f:
@@ -71,7 +71,11 @@ hparamsdata = HyperParams(
 TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=uid2index,npratio=hparams['data']['npratio'], device=device,train=True,transformer=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=uid2index, device=device, train=False)
 
-
+# read first line in temp.txt
+with open('tempmodel.txt','r') as f:
+    line = f.readline()
+    model_name = line[:-1]
+    hparams['model']['Transformer']['model'] = model_name
 
 
 
@@ -283,7 +287,7 @@ for epoch in range(hparams['train']['epochs']):
 # %%
 
 # Saving Training Logs
-filestring = f'EvaluationTranformer{hparams["model"]["Transformer"]["model"]}{hparams["model"]["Transformer"]["set"]}.pkl'
+filestring = f'EvaluationTranformer{hparams["model"]["Transformer"]["model"]}.pkl'
 with open(filestring, 'wb') as f:
     pkl.dump([Evaluation_dict], f)
 # %%

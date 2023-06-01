@@ -54,13 +54,13 @@ if hparams['model']['Transformer']['set'] != 'None':
 device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
-train_behaviors_file = 'Data/MINDdemo_train/behaviors.tsv'
+train_behaviors_file = 'Data/MINDsubdemo_train/behaviors.tsv'
 train_news_file = 'Data/MINDdemo_train/news.tsv'
 word_dict_file = 'Data/MINDdemo_utils/word_dict_all.pkl'
 user_dict_file = 'Data/MINDdemo_utils/uid2index.pkl'
 
-valid_behaviors_file = 'Data/MINDdemo_dev/behaviors.tsv'
-valid_news_file = 'Data/MINDdemo_dev/news.tsv'
+valid_behaviors_file = 'Data/MINDdemo_opt/behaviors.tsv'
+valid_news_file = 'Data/MINDdemo_train/news.tsv'
 
 
 with open ("Data/MINDdemo_utils/word_dict.pkl", "rb") as f:

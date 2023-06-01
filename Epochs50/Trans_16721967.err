@@ -1,43 +1,0 @@
-Loaded dependency [python3/3.9.11]: gcc/10.3.0-binutils-2.36.1
-Loaded module: python3/3.9.11
-
-Loading python3/3.9.11
-  Loading requirement: gcc/10.3.0-binutils-2.36.1
-Loaded module: cuda/11.7
-/work3/s204117/News-Recommendations/DataLoaders/DataIterator.py:139: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  self.user_data['history_length'][self.user_data['history_length'] > 50] = 50
-/work3/s204117/News-Recommendations/DataLoaders/DataIterator.py:139: SettingWithCopyWarning: 
-A value is trying to be set on a copy of a slice from a DataFrame
-
-See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
-  self.user_data['history_length'][self.user_data['history_length'] > 50] = 50
-  0%|          | 0/7335 [00:00<?, ?it/s]/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/torch/nn/modules/transformer.py:287: UserWarning: The PyTorch API of nested tensors is in prototype stage and will change in the near future. (Triggered internally at ../aten/src/ATen/NestedTensorImpl.cpp:177.)
-  output = torch._nested_tensor_from_mask(output, src_key_padding_mask.logical_not(), mask_check=False)
-  0%|          | 1/7335 [00:02<4:07:59,  2.03s/it]  0%|          | 7/7335 [00:02<27:57,  4.37it/s]    0%|          | 13/7335 [00:02<13:31,  9.02it/s]  0%|          | 20/7335 [00:02<07:52, 15.47it/s]  0%|          | 26/7335 [00:02<05:45, 21.15it/s]  0%|          | 32/7335 [00:02<04:40, 25.99it/s]  1%|          | 38/7335 [00:02<03:54, 31.11it/s]  1%|          | 44/7335 [00:02<03:20, 36.43it/s]  1%|          | 50/7335 [00:02<02:59, 40.63it/s]  1%|          | 56/7335 [00:03<02:43, 44.52it/s]  1%|          | 62/7335 [00:03<02:35, 46.84it/s]  1%|          | 68/7335 [00:03<02:25, 50.04it/s]  1%|          | 74/7335 [00:03<02:21, 51.18it/s]  1%|          | 81/7335 [00:03<02:14, 54.04it/s]  1%|          | 87/7335 [00:03<02:12, 54.83it/s]  1%|▏         | 93/7335 [00:03<02:11, 55.13it/s]  1%|▏         | 99/7335 [00:03<02:09, 55.81it/s]  1%|▏         | 106/7335 [00:03<02:02, 58.83it/s]  2%|▏         | 112/7335 [00:04<02:03, 58.36it/s]  2%|▏         | 118/7335 [00:04<02:06, 57.14it/s]  2%|▏         | 124/7335 [00:04<02:16, 52.95it/s]  2%|▏         | 130/7335 [00:04<02:16, 52.61it/s]  2%|▏         | 136/7335 [00:04<02:12, 54.24it/s]  2%|▏         | 142/7335 [00:04<02:12, 54.27it/s]  2%|▏         | 148/7335 [00:04<02:08, 55.86it/s]  2%|▏         | 155/7335 [00:04<02:01, 59.21it/s]  2%|▏         | 161/7335 [00:04<02:08, 55.99it/s]  2%|▏         | 168/7335 [00:05<02:03, 58.24it/s]  2%|▏         | 175/7335 [00:05<01:59, 59.70it/s]  2%|▏         | 182/7335 [00:05<01:59, 59.73it/s]  3%|▎         | 188/7335 [00:05<02:00, 59.20it/s]  3%|▎         | 195/7335 [00:05<01:57, 60.55it/s]  3%|▎         | 202/7335 [00:05<02:01, 58.80it/s]  3%|▎         | 209/7335 [00:05<01:58, 60.17it/s]  3%|▎         | 216/7335 [00:05<02:08, 55.48it/s]  3%|▎         | 222/7335 [00:05<02:14, 52.85it/s]  3%|▎         | 228/7335 [00:06<02:10, 54.26it/s]  3%|▎         | 234/7335 [00:06<02:15, 52.48it/s]  3%|▎         | 241/7335 [00:06<02:07, 55.59it/s]  3%|▎         | 247/7335 [00:06<02:05, 56.29it/s]  3%|▎         | 253/7335 [00:06<02:09, 54.83it/s]  4%|▎         | 259/7335 [00:06<02:11, 53.84it/s]  4%|▎         | 265/7335 [00:06<02:08, 55.06it/s]  4%|▎         | 272/7335 [00:06<02:04, 56.80it/s]  4%|▍         | 278/7335 [00:06<02:07, 55.39it/s]  4%|▍         | 285/7335 [00:07<02:03, 57.08it/s]  4%|▍         | 291/7335 [00:07<02:07, 55.26it/s]  4%|▍         | 297/7335 [00:07<02:08, 54.67it/s]  4%|▍         | 303/7335 [00:07<02:10, 53.75it/s]  4%|▍         | 309/7335 [00:07<02:11, 53.51it/s]  4%|▍         | 316/7335 [00:07<02:03, 57.02it/s]  4%|▍         | 322/7335 [00:07<02:08, 54.58it/s]  4%|▍         | 328/7335 [00:07<02:07, 55.08it/s]  5%|▍         | 334/7335 [00:07<02:04, 56.25it/s]  5%|▍         | 341/7335 [00:08<01:58, 59.05it/s]  5%|▍         | 348/7335 [00:08<01:54, 61.23it/s]  5%|▍         | 355/7335 [00:08<01:57, 59.28it/s]  5%|▍         | 361/7335 [00:08<02:00, 57.73it/s]  5%|▌         | 367/7335 [00:08<01:59, 58.13it/s]  5%|▌         | 373/7335 [00:08<02:03, 56.54it/s]  5%|▌         | 379/7335 [00:08<02:05, 55.38it/s]  5%|▌         | 385/7335 [00:08<02:16, 50.85it/s]  5%|▌         | 392/7335 [00:09<02:08, 54.02it/s]  5%|▌         | 398/7335 [00:09<02:05, 55.30it/s]  6%|▌         | 404/7335 [00:09<02:02, 56.59it/s]  6%|▌         | 411/7335 [00:09<01:57, 58.75it/s]  6%|▌         | 417/7335 [00:09<02:00, 57.22it/s]  6%|▌         | 424/7335 [00:09<01:55, 59.92it/s]  6%|▌         | 431/7335 [00:09<01:58, 58.44it/s]  6%|▌         | 438/7335 [00:09<01:58, 58.32it/s]  6%|▌         | 445/7335 [00:09<01:57, 58.41it/s]  6%|▌         | 451/7335 [00:10<02:01, 56.57it/s]  6%|▌         | 457/7335 [00:10<02:00, 57.26it/s]  6%|▋         | 463/7335 [00:10<01:59, 57.55it/s]  6%|▋         | 469/7335 [00:10<02:00, 57.19it/s]  6%|▋         | 476/7335 [00:10<01:57, 58.55it/s]  7%|▋         | 483/7335 [00:10<01:54, 59.92it/s]  7%|▋         | 490/7335 [00:10<01:54, 59.86it/s]  7%|▋         | 495/7335 [00:10<02:28, 45.99it/s]
-Traceback (most recent call last):
-  File "/work3/s204117/News-Recommendations/TrainTransformer/FitTransformer.py", line 145, in <module>
-    for batch in tqdm(vali_batch_loader):
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/tqdm/std.py", line 1178, in __iter__
-    for obj in iterable:
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 634, in __next__
-    data = self._next_data()
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/torch/utils/data/dataloader.py", line 678, in _next_data
-    data = self._dataset_fetcher.fetch(index)  # may raise StopIteration
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/torch/utils/data/_utils/fetch.py", line 51, in fetch
-    data = [self.dataset[idx] for idx in possibly_batched_index]
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/torch/utils/data/_utils/fetch.py", line 51, in <listcomp>
-    data = [self.dataset[idx] for idx in possibly_batched_index]
-  File "/work3/s204117/News-Recommendations/DataLoaders/DataIterator.py", line 198, in __getitem__
-    history_abstract = [self.news_data.iloc[news_id]['abstract_encode'] for news_id in history]
-  File "/work3/s204117/News-Recommendations/DataLoaders/DataIterator.py", line 198, in <listcomp>
-    history_abstract = [self.news_data.iloc[news_id]['abstract_encode'] for news_id in history]
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/pandas/core/series.py", line 981, in __getitem__
-    return self._get_value(key)
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/pandas/core/series.py", line 1089, in _get_value
-    loc = self.index.get_loc(label)
-  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/pandas/core/indexes/base.py", line 3802, in get_loc
-    return self._engine.get_loc(casted_key)
-KeyboardInterrupt
