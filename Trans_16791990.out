@@ -1,0 +1,46 @@
+Importing Model... Ini
+nheads: 8
+num_layers: 1
+dff: 1200
+Hparam set 21
+{'group_auc': 0.497, 'mean_mrr': 0.1937, 'ndcg@5': 0.1937, 'ndcg@10': 0.2542, 'loss': 5.856990542522544}
+Memory: 2.606759936 GB
+{'group_auc': 0.5708, 'mean_mrr': 0.2361, 'ndcg@5': 0.2488, 'ndcg@10': 0.3068, 'loss': 5.771664214931224}
+Memory: 2.606759936 GB
+{'group_auc': 0.5712, 'mean_mrr': 0.237, 'ndcg@5': 0.2504, 'ndcg@10': 0.3061, 'loss': 5.783827080806456}
+Memory: 2.606759936 GB
+{'group_auc': 0.5683, 'mean_mrr': 0.234, 'ndcg@5': 0.2447, 'ndcg@10': 0.3039, 'loss': 5.774774046310627}
+Memory: 2.606759936 GB
+{'group_auc': 0.5667, 'mean_mrr': 0.2279, 'ndcg@5': 0.2356, 'ndcg@10': 0.2972, 'loss': 5.789345836695958}
+Memory: 2.606759936 GB
+{'group_auc': 0.5751, 'mean_mrr': 0.2345, 'ndcg@5': 0.2434, 'ndcg@10': 0.3042, 'loss': 5.798148660829319}
+Memory: 2.606759936 GB
+{'group_auc': 0.5735, 'mean_mrr': 0.2337, 'ndcg@5': 0.2431, 'ndcg@10': 0.3033, 'loss': 5.793681155005758}
+Memory: 2.606759936 GB
+{'group_auc': 0.5715, 'mean_mrr': 0.2305, 'ndcg@5': 0.2387, 'ndcg@10': 0.3004, 'loss': 5.849455314403151}
+Memory: 2.606759936 GB
+{'group_auc': 0.5777, 'mean_mrr': 0.2372, 'ndcg@5': 0.2447, 'ndcg@10': 0.3073, 'loss': 5.86435241397513}
+Memory: 2.606759936 GB
+{'group_auc': 0.5759, 'mean_mrr': 0.2381, 'ndcg@5': 0.2457, 'ndcg@10': 0.3084, 'loss': 5.797721038731136}
+Memory: 2.606759936 GB
+{'group_auc': 0.5862, 'mean_mrr': 0.2479, 'ndcg@5': 0.2589, 'ndcg@10': 0.3198, 'loss': 5.790076914032147}
+Memory: 2.606759936 GB
+{'group_auc': 0.5931, 'mean_mrr': 0.2543, 'ndcg@5': 0.2654, 'ndcg@10': 0.3269, 'loss': 5.798924103234578}
+Memory: 2.606759936 GB
+{'group_auc': 0.6041, 'mean_mrr': 0.2573, 'ndcg@5': 0.2716, 'ndcg@10': 0.332, 'loss': 5.78755280376056}
+Memory: 2.606759936 GB
+{'group_auc': 0.6087, 'mean_mrr': 0.2591, 'ndcg@5': 0.2711, 'ndcg@10': 0.3329, 'loss': 5.778976237527543}
+Memory: 2.606759936 GB
+{'group_auc': 0.6082, 'mean_mrr': 0.2597, 'ndcg@5': 0.2726, 'ndcg@10': 0.3315, 'loss': 5.912686202331098}
+Memory: 2.606759936 GB
+{'group_auc': 0.6175, 'mean_mrr': 0.2658, 'ndcg@5': 0.2806, 'ndcg@10': 0.341, 'loss': 5.878215896897737}
+Memory: 2.606759936 GB
+{'group_auc': 0.6202, 'mean_mrr': 0.2636, 'ndcg@5': 0.2784, 'ndcg@10': 0.3398, 'loss': 5.813734646180183}
+Memory: 2.606759936 GB
+{'group_auc': 0.6247, 'mean_mrr': 0.2663, 'ndcg@5': 0.2801, 'ndcg@10': 0.3429, 'loss': 5.872641791783344}
+Memory: 2.606759936 GB
+{'group_auc': 0.6241, 'mean_mrr': 0.2679, 'ndcg@5': 0.2835, 'ndcg@10': 0.3462, 'loss': 5.80288913112137}
+Memory: 2.606759936 GB
+{'group_auc': 0.6243, 'mean_mrr': 0.2679, 'ndcg@5': 0.2815, 'ndcg@10': 0.345, 'loss': 5.76924184937234}
+Memory: 2.606759936 GB
+{'group_auc': 0.6255, 'mean_mrr': 0.2687, 'ndcg@5': 0.2839, 'ndcg@10': 0.3462, 'loss': 5.812458039343806}
