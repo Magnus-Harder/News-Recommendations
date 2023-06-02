@@ -23,13 +23,14 @@ from DataLoaders.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 from TestData.MindDependencies.Metrics import cal_metric
 
+dataset = 'demo'
 
 # Import Hparam
-with open('Data/MINDdemo_utils/lstur.yaml','r') as stream:
+with open(f'Data/MIND{dataset}_utils/lstur.yaml','r') as stream:
     hparams = yaml.safe_load(stream)
 
 # Import word_vec
-word_embedding = np.load('Data/MINDdemo_utils/embedding_all.npy')
+word_embedding = np.load(f'Data/MIND{dataset}_utils/embedding_all.npy')
 word_embedding = word_embedding.astype(np.float32)
 
 hparamstrain = hparams['train']
@@ -40,18 +41,18 @@ hparamsmodel = hparams['model']
 device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
-train_behaviors_file = 'Data/MINDsubdemo_train/behaviors.tsv'
-train_news_file = 'Data/MINDdemo_train/news.tsv'
-word_dict_file = 'Data/MINDdemo_utils/word_dict_all.pkl'
-user_dict_file = 'Data/MINDdemo_utils/uid2index.pkl'
+train_behaviors_file = f'Data/MIND{dataset}_train/behaviors.tsv'
+train_news_file = f'Data/MIND{dataset}_train/news.tsv'
+word_dict_file = f'Data/MIND{dataset}_utils/word_dict_all.pkl'
+user_dict_file = f'Data/MIND{dataset}_utils/uid2index.pkl'
 
-valid_behaviors_file = 'Data/MINDdemo_opt/behaviors.tsv'
-valid_news_file = 'Data/MINDdemo_train/news.tsv'
+valid_behaviors_file = f'Data/MIND{dataset}_dev/behaviors.tsv'
+valid_news_file = f'Data/MIND{dataset}_dev/news.tsv'
 
 
-with open ("Data/MINDdemo_utils/word_dict.pkl", "rb") as f:
+with open (f"Data/MIND{dataset}_utils/word_dict.pkl", "rb") as f:
     word_dict = pickle.load(f)
-with open ("Data/MINDdemo_utils/uid2index.pkl", "rb") as f:
+with open (f"Data/MIND{dataset}_utils/uid2index.pkl", "rb") as f:
     uid2index = pickle.load(f)
 
 from dataclasses import dataclass
