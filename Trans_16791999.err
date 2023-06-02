@@ -1,0 +1,14 @@
+Loaded dependency [python3/3.9.11]: gcc/10.3.0-binutils-2.36.1
+Loaded module: python3/3.9.11
+
+Loading python3/3.9.11
+  Loading requirement: gcc/10.3.0-binutils-2.36.1
+Loaded module: cuda/11.7
+Traceback (most recent call last):
+  File "/work3/s204117/News-Recommendations/TrainTransformer/FitTransformerHparam.py", line 5, in <module>
+    import torch as th
+  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/torch/__init__.py", line 1146, in <module>
+    _C._initExtension(manager_path())
+  File "/work3/s204117/News-Recommendations/venv_1/lib/python3.9/site-packages/torch/cuda/__init__.py", line 909, in <module>
+    class LongStorage(_CudaLegacyStorage):
+KeyboardInterrupt
