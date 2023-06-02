@@ -17,6 +17,7 @@ from DataLoaders.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 from TestData.MindDependencies.Metrics import cal_metric
 
+dataset = "demo"
 
 # Import Hparam
 with open('hparams/Transformerhparam.yaml','r') as stream:
@@ -24,7 +25,7 @@ with open('hparams/Transformerhparam.yaml','r') as stream:
 
 
 # Import word_vec
-word_embedding = np.load('Data/MINDsmall_utils/embedding_all.npy')
+word_embedding = np.load(f'Data/MIND{dataset}_utils/embedding_all.npy')
 word_embedding = word_embedding.astype(np.float32)
 
 #th.manual_seed(2021)
@@ -34,18 +35,18 @@ word_embedding = word_embedding.astype(np.float32)
 device = 'cuda' if th.cuda.is_available() else 'cpu'
 
 # Define Data, Dataset and DataLoaders
-train_behaviors_file = 'Data/MINDdsubsmall_train/behaviors.tsv'
-train_news_file = 'Data/MINDsubsmall_train/news.tsv'
-word_dict_file = 'Data/MINDsmall_utils/word_dict_all.pkl'
-user_dict_file = 'Data/MINDsmall_utils/uid2index.pkl'
+train_behaviors_file = f'Data/MIND{dataset}_train/behaviors.tsv'
+train_news_file = f'Data/MIND{dataset}_train/news.tsv'
+word_dict_file = f'Data/MIND{dataset}_utils/word_dict_all.pkl'
+user_dict_file = f'Data/MIND{dataset}_utils/uid2index.pkl'
 
-valid_behaviors_file = 'Data/MINDsubsmall_dev/behaviors.tsv'
-valid_news_file = 'Data/MINDsmall_dev/news.tsv'
+valid_behaviors_file = f'Data/MIND{dataset}_dev/behaviors.tsv'
+valid_news_file = f'Data/MIND{dataset}_dev/news.tsv'
 
 
-with open ("Data/MINDsmall_utils/word_dict.pkl", "rb") as f:
+with open (f"Data/MIND{dataset}_utils/word_dict.pkl", "rb") as f:
     word_dict = pkl.load(f)
-with open ("Data/MINDsmall_utils/uid2index.pkl", "rb") as f:
+with open (f"Data/MIND{dataset}_utils/uid2index.pkl", "rb") as f:
     uid2index = pkl.load(f)
 
 from dataclasses import dataclass
@@ -284,4 +285,12 @@ for epoch in range(hparams['train']['epochs']):
 filestring = f'EvaluationTranformer{hparams["model"]["Transformer"]["model"]}{hparams["model"]["Transformer"]["set"]}.pkl'
 with open(filestring, 'wb') as f:
     pkl.dump([Evaluation_dict], f)
+
+#%%
+# Saving the model
+
+filestring = f'Tranformer{hparams["model"]["Transformer"]["model"]}{hparams["model"]["Transformer"]["set"]}.pt'
+
+th.save(model.state_dict(), filestring)
+
 # %%
