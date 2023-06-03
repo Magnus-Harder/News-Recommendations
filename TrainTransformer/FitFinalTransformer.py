@@ -234,6 +234,7 @@ for epoch in range(hparams['train']['epochs']):
         model.train(False)
         labels_all = []
         preds_all = []
+        user_id_all = []
         loss_vali = []
 
         batch_size_vali = 1
@@ -264,6 +265,7 @@ for epoch in range(hparams['train']['epochs']):
 
                 labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
                 preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
+                user_id_all.append(user_id[i,:].cpu().numpy())
             
 
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
@@ -288,9 +290,16 @@ with open(filestring, 'wb') as f:
 
 #%%
 # Saving the model
+#model.to('cpu')
+#model.eval()
 
-filestring = f'TransformerOwn{hparams["model"]["Transformer"]["model"]}{dataset}.pt'
+#filestring = f'Transformer{hparams["model"]["Transformer"]["model"]}{dataset}.pt'
+Dictfilestring = f'Transformer{hparams["model"]["Transformer"]["model"]}{dataset}Predictions.pkl'
 
-th.save(model.state_dict(), filestring)
+
+#th.save(model.state_dict(), filestring)
+
+with open(Dictfilestring, 'wb') as f:
+    pkl.dump({'preds': preds_all, 'labels': labels_all, 'user ids': user_id_all, 'UserDict': TrainData.userid_dict}, f)
 
 # %%

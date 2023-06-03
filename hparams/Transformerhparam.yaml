@@ -21,16 +21,16 @@ model:
 
   Transformer:
     d_model: 400
-    num_layers: 3
-    num_heads: 8
-    dff: 2400
+    num_layers: 1
+    num_heads: 4
+    dff: 1200
     dropout: 0.2
     model: "Ini"
     set: "None"
 
 train:
-  batch_size: 256
-  epochs: 60
+  batch_size: 128
+  epochs: 50
   learning_rate: 0.0001
   optimizer: Adam
   loss: CrossEntropyLoss
