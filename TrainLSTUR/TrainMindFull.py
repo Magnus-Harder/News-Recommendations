@@ -172,6 +172,7 @@ for epoch in range(hparams['train']['epochs']):
         labels_all = []
         preds_all = []
         loss_vali = []
+        user_id_all = []
 
         vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=False)
 
@@ -185,6 +186,7 @@ for epoch in range(hparams['train']['epochs']):
 
             labels_all.append(labels.cpu().squeeze(0).numpy())
             preds_all.append(Scores.cpu().squeeze(0).detach().numpy())
+            user_id_all.append(user_id.cpu().squeeze(0).numpy())
   
         
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
@@ -209,8 +211,12 @@ with open('EvalLSTURIni.pkl', 'wb') as f:
 
 # Saving the model
 
-filestring = f'LSTURini{dataset}.pt'
+Dictfilestring = f'LSTURini{dataset}Predictions.pkl'
 
-th.save(model.state_dict(), filestring)
+
+#th.save(model.state_dict(), filestring)
+
+with open(Dictfilestring, 'wb') as f:
+    pickle.dump({'preds': preds_all, 'labels': labels_all, 'user ids': user_id_all, 'UserDict': TrainData.userid_dict}, f)
 
 # %%
