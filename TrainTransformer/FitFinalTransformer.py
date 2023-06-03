@@ -289,7 +289,7 @@ with open(filestring, 'wb') as f:
 #%%
 # Saving the model
 
-filestring = f'Transformer{hparams["model"]["Transformer"]["model"]}{dataset}.pt'
+filestring = f'TransformerOwn{hparams["model"]["Transformer"]["model"]}{dataset}.pt'
 
 th.save(model.state_dict(), filestring)
 
