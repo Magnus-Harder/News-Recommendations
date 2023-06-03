@@ -207,5 +207,10 @@ for epoch in range(hparams['train']['epochs']):
 with open('EvalLSTURIni.pkl', 'wb') as f:
     pickle.dump(Evaluation_dict, f)
 
+# Saving the model
+
+filestring = f'LSTURini{dataset}.pt'
+
+th.save(model.state_dict(), filestring)
 
 # %%
