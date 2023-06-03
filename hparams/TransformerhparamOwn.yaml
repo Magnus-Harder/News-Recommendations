@@ -1,0 +1,38 @@
+# Hyperparameters in Tranformer model
+
+data:
+  batch_size: 32
+  history_length: 50
+  title_length: 30
+  abstract_length: 100
+  npratio: 4
+  word_embedding_dim: 300
+
+
+
+model:
+  News Encoder:
+      filter_num: 400
+      window_size: 3
+      cnn_activation: relu
+      attention_hidden_dim: 200
+      dropout: 0.2
+      word_emb_dim: 300
+
+  Transformer:
+    d_model: 400
+    num_layers: 4
+    num_heads: 8
+    dff: 2400
+    dropout: 0.2
+    model: "Ini"
+    set: "None"
+
+train:
+  batch_size: 256
+  epochs: 50
+  learning_rate: 0.0001
+  optimizer: Adam
+  loss: CrossEntropyLoss
+
+
