@@ -1,6 +1,0 @@
-Importing Model... Ini
-nheads: 8
-num_layers: 4
-dff: 2400
-Hparam set None
-{'group_auc': 0.5335, 'mean_mrr': 0.2316, 'ndcg@5': 0.2452, 'ndcg@10': 0.304, 'loss': 5.15271364352942}

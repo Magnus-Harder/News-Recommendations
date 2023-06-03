@@ -265,7 +265,7 @@ for epoch in range(hparams['train']['epochs']):
 
                 labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
                 preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
-                user_id_all.append(user_id[i,:].cpu().numpy())
+                user_id_all.append(user_id.cpu().squeeze(0).numpy())
             
 
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
