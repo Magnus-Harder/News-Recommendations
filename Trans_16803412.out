@@ -3,3 +3,4 @@ nheads: 4
 num_layers: 1
 dff: 1200
 Hparam set None
+{'group_auc': 0.467, 'mean_mrr': 0.1986, 'ndcg@5': 0.1984, 'ndcg@10': 0.2576, 'loss': 5.291083311953346}
