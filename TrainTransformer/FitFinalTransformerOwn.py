@@ -17,7 +17,7 @@ from DataLoaders.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 from TestData.MindDependencies.Metrics import cal_metric
 
-dataset = "demo"
+dataset = "small"
 
 # Import Hparam
 with open('hparams/TransformerhparamOwn.yaml','r') as stream:
