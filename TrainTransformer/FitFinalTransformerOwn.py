@@ -23,10 +23,10 @@ dataset = "small"
 with open('hparams/TransformerhparamOwn.yaml','r') as stream:
     hparams = yaml.safe_load(stream)
 
-
-# Import word_vec
-word_embedding = np.load(f'Data/MIND{dataset}_utils/embedding_all.npy')
-word_embedding = word_embedding.astype(np.float32)
+if dataset == "demo":
+    # Import word_vec
+    word_embedding = np.load(f'Data/MIND{dataset}_utils/embedding_all.npy')
+    word_embedding = word_embedding.astype(np.float32)
 
 #th.manual_seed(2021)
 
@@ -70,7 +70,23 @@ hparamsdata = HyperParams(
 TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=None,npratio=hparams['data']['npratio'], device=device,train=True,transformer=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=TrainData.userid_dict, device=device, train=False)
 
+if dataset == "small":
+    word_dict = TrainData.word_dict
 
+    # Import Glove
+    import torchtext.vocab as vocab
+
+    vec = vocab.GloVe(name='6B', dim=300, cache='torchtext_data6B')
+
+    word_embedding = np.zeros((word_dict.__len__() + 1, 300))
+
+    for word, index in word_dict.items():
+        if word in vec.stoi:
+            word_embedding[index] = vec[word]
+        else:
+            word_embedding[index] = np.random.normal(scale=0.1, size=(300,))
+    
+    word_embedding = word_embedding.astype(np.float32)
 
 
 

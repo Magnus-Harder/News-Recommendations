@@ -23,15 +23,16 @@ from DataLoaders.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 from TestData.MindDependencies.Metrics import cal_metric
 
-dataset = 'demo'
+dataset = 'small'
 
 # Import Hparam
 with open(f'Data/MIND{dataset}_utils/lstur.yaml','r') as stream:
     hparams = yaml.safe_load(stream)
 
-# Import word_vec
-word_embedding = np.load(f'Data/MIND{dataset}_utils/embedding_all.npy')
-word_embedding = word_embedding.astype(np.float32)
+if dataset == 'demo':
+    # Import word_vec
+    word_embedding = np.load(f'Data/MIND{dataset}_utils/embedding_all.npy')
+    word_embedding = word_embedding.astype(np.float32)
 
 hparamstrain = hparams['train']
 hparamsmodel = hparams['model']
@@ -75,6 +76,24 @@ hparamsdata = HyperParams(
 
 TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=None,npratio=hparams['data']['npratio'],device = device, train=True,transformer=False)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=TrainData.userid_dict, train=False, device = device,transformer=False)
+
+if dataset == "small":
+    word_dict = TrainData.word_dict
+
+    # Import Glove
+    import torchtext.vocab as vocab
+
+    vec = vocab.GloVe(name='6B', dim=300, cache='torchtext_data6B')
+
+    word_embedding = np.zeros((word_dict.__len__() + 1, 300))
+
+    for word, index in word_dict.items():
+        if word in vec.stoi:
+            word_embedding[index] = vec[word]
+        else:
+            word_embedding[index] = np.random.normal(scale=0.1, size=(300,))
+    
+    word_embedding = word_embedding.astype(np.float32)
 
 # %%
 from ModelsLSTUR.LSTURini import LSTURini
