@@ -101,13 +101,7 @@ class lstransformer(nn.Module):
             for i in range(b):
                 Scores[i] = embed_cand[i] @ User_emb[i]
 
-            return Scores
-
-
-            
-
-
-            return 
+            return Scores.unsqueeze(-1)
 
 
 
