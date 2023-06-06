@@ -7,7 +7,7 @@
 #BSUB -n 1
 #BSUB -R "rusage[mem=8G]"
 #BSUB -R "span[hosts=1]"
-#BSUB -W 8:00
+#BSUB -W 24:00
 #BSUB -N
 # end of BSUB options
 

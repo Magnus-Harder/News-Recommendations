@@ -1,0 +1,14 @@
+Loading Packages...
+/work3/s204117/News-Recommendations
+cuda
+{'group_auc': 0.45, 'mean_mrr': 0.1924, 'ndcg@5': 0.1869, 'ndcg@10': 0.2517, 'loss': 5.1748668574146075}
+Memory: 1.759510528 GB
+{'group_auc': 0.6107, 'mean_mrr': 0.276, 'ndcg@5': 0.3054, 'ndcg@10': 0.3672, 'loss': 5.147558427002489}
+Memory: 1.759510528 GB
+{'group_auc': 0.6208, 'mean_mrr': 0.2805, 'ndcg@5': 0.3076, 'ndcg@10': 0.3726, 'loss': 5.134855710373631}
+Memory: 1.759510528 GB
+{'group_auc': 0.6222, 'mean_mrr': 0.2837, 'ndcg@5': 0.307, 'ndcg@10': 0.3751, 'loss': 5.136829471936987}
+Memory: 1.759510528 GB
+{'group_auc': 0.6386, 'mean_mrr': 0.2928, 'ndcg@5': 0.3194, 'ndcg@10': 0.3865, 'loss': 5.122820612848709}
+Memory: 1.759510528 GB
+{'group_auc': 0.6436, 'mean_mrr': 0.2976, 'ndcg@5': 0.3254, 'ndcg@10': 0.3921, 'loss': 5.117887538296417}
