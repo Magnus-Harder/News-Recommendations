@@ -84,8 +84,8 @@ class lstransformer(nn.Module):
             # Embed candidates
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)
             for i in range(candidates.shape[0]):
-                #embed_cand[i] = self.newsencoder(candidates[i])
-                embed_cand[i] = self.ImpressionNewsEncoder(candidates[i])
+                embed_cand[i] = self.newsencoder(candidates[i])
+                #embed_cand[i] = self.ImpressionNewsEncoder(candidates[i])
 
             #Embed user id
             users = self.UserEmbedding(user_id)
