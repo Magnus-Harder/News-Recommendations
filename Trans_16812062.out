@@ -1,0 +1,10 @@
+Importing Model... Encoder
+nheads: 4
+num_layers: 2
+dff: 1200
+Hparam set None
+{'group_auc': 0.4935, 'mean_mrr': 0.1984, 'ndcg@5': 0.2001, 'ndcg@10': 0.2581, 'loss': 6.512063197030537}
+Memory: 2.669674496 GB
+{'group_auc': 0.5386, 'mean_mrr': 0.2124, 'ndcg@5': 0.2178, 'ndcg@10': 0.2792, 'loss': 5.831896710938993}
+Memory: 2.669674496 GB
+{'group_auc': 0.5525, 'mean_mrr': 0.2238, 'ndcg@5': 0.2323, 'ndcg@10': 0.292, 'loss': 5.806917555721757}

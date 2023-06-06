@@ -1,0 +1,10 @@
+Importing Model... Additive
+nheads: 4
+num_layers: 2
+dff: 1200
+Hparam set None
+{'group_auc': 0.5088, 'mean_mrr': 0.2048, 'ndcg@5': 0.2065, 'ndcg@10': 0.2668, 'loss': 5.838305310046157}
+Memory: 2.864709632 GB
+{'group_auc': 0.5712, 'mean_mrr': 0.2312, 'ndcg@5': 0.247, 'ndcg@10': 0.3036, 'loss': 5.789496860480871}
+Memory: 2.864709632 GB
+{'group_auc': 0.5675, 'mean_mrr': 0.2307, 'ndcg@5': 0.2432, 'ndcg@10': 0.3002, 'loss': 5.84578090460292}
