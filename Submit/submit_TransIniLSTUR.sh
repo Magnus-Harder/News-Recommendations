@@ -5,9 +5,9 @@
 #BSUB -q gpuv100
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -n 1
-#BSUB -R "rusage[mem=8G]"
+#BSUB -R "rusage[mem=6G]"
 #BSUB -R "span[hosts=1]"
-#BSUB -W 24:00
+#BSUB -W 6:00
 #BSUB -N
 # end of BSUB options
 
@@ -21,5 +21,9 @@ module load cuda/11.7
 # activate the virtual environment
 # NOTE: needs to have been built with the same SciPy version above!
 source venv_1/bin/activate
+
+touch tempmodel.txt
+
+echo "IniLSTUR" > tempmodel.txt
 
 python3 TrainTransformer/FitTransformer.py
