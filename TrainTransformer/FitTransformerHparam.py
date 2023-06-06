@@ -100,20 +100,13 @@ if hparams['model']['Transformer']['model'] == 'Additive':
     from ModelsTransformer.TransformerAdditive import lstransformer
 elif hparams['model']['Transformer']['model'] == 'Ini':
     from ModelsTransformer.TransformerIni import lstransformer
-elif hparams['model']['Transformer']['model'] == 'IniDot':
-    from ModelsTransformer.TransformerIniDot import lstransformer
-elif hparams['model']['Transformer']['model'] == 'NoMem':
-    from ModelsTransformer.TransformernoMem import lstransformer
-elif hparams['model']['Transformer']['model'] == 'UserEmb':
-    from ModelsTransformer.TransformerUserEmb import lstransformer
-    hparamsdata.his_size += 1
-elif hparams['model']['Transformer']['model'] == 'UserEmbDot':
-    from ModelsTransformer.TransformerUserEmbDot import lstransformer
-    hparamsdata.his_size += 1
-elif hparams['model']['Transformer']['model'] == 'IniOwn':
-    from ModelsTransformer.TransformerIniOwn import lstransformer
 elif hparams['model']['Transformer']['model'] == 'IniLSTUR':
     from ModelsTransformer.TransformerIniLSTUR import lstransformer
+elif hparams['model']['Transformer']['model'] == 'Decoder':
+    from ModelsTransformer.TransformerDecoder import lstransformer
+elif hparams['model']['Transformer']['model'] == 'Encoder':
+    from ModelsTransformer.TransformerEncoder import lstransformer
+    hparamsdata.his_size += 1
 
 # Print Specefic Hparams
 print('nheads:', hparams['model']['Transformer']['num_heads'])

@@ -34,10 +34,8 @@ class lstransformer(nn.Module):
             super().__init__()
             self.num_layers = num_layers
 
-
-            # Encoder 
-            self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
-            self.encoder = nn.TransformerEncoder(encoder_layer = self.encoderlayer, num_layers = self.num_layers)
+            # Positional encoding
+            self.positional_encoding = PositionalEncoding(his_size,d_model)
             
             # Decoder
             self.decoderlayer = nn.TransformerDecoderLayer(d_model, nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
@@ -62,38 +60,31 @@ class lstransformer(nn.Module):
 
         def forward(self, user_id, embed_his, his_key_mask, candidates):
 
-            # Encode history
+            # Embed history
             encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400),device=self.device)
-
             for i in range(embed_his.shape[0]):
                  encoded_his[i] = self.newsencoder(embed_his[i])
-
             
             # Dropouts
             encoded_his = self.dropout1(encoded_his)
 
-            # Encode history with memory
-            memory = self.encoder(encoded_his, src_key_padding_mask = his_key_mask)
-
-            # Embed user
-            users = self.UserEmbedding(user_id)
-            # Add user embedding to memory
-            for i in range(memory.shape[0]):
-                memory[i] = memory[i] + users[i]
-
-            # dropouts
-            memory = self.dropout2(memory)
 
             # Embed candidates
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)
             for i in range(candidates.shape[0]):
                 embed_cand[i] = self.newsencoder(candidates[i])
 
+            # Embed user id
+            users = self.UserEmbedding(user_id)
+
             #Dropouts
             embed_cand = self.dropout3(embed_cand)
 
-            #Decode candidates with memory
-            decoded = self.decoder(embed_cand,memory)
+            # Add user embedding to front of candidates
+            User_embed_cant = th.cat((users.unsqueeze(1),embed_cand),dim=1)
+
+            #Decode candidates with encoded history
+            decoded = self.decoder(User_embed_cant,encoded_his,memory_key_padding_mask=his_key_mask)
 
             #Dropouts
             decoded = self.dropout4(decoded)
@@ -101,7 +92,7 @@ class lstransformer(nn.Module):
             #Final layer
             out = self.outlayer(decoded)
 
-            return out
+            return out[:,1:]
 
 
 

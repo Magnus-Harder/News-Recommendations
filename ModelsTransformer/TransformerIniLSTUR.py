@@ -3,28 +3,6 @@ import torch as th
 from torch import nn
 from ModelsTransformer.NewsEncoder import NewsEncoder
 
-#%%
-class PositionalEncoding(nn.Module):
-    def __init__(self, T, d_model):
-        super().__init__()
-
-        # Define needed built in functions and parameters
-        self.d_model = d_model
-        self.T = T
-        self.PositionalEncoding = nn.Parameter(th.zeros((int(T), int(d_model))), requires_grad=False)
-        self.init_positional_encoding()
-
-    # Initialize positional encoding matrix
-    def init_positional_encoding(self):
-        position = th.arange(0, self.T, dtype=th.float).unsqueeze(1)
-        div_term = th.exp(th.arange(0, self.d_model, 2,dtype=th.float) * (-th.log(th.tensor([10000.0])) / self.d_model))
-        self.PositionalEncoding[:, 0::2] = th.sin(position * div_term)
-        self.PositionalEncoding[:, 1::2] = th.cos(position * div_term)
-
-    # Add positional encoding to input
-    def forward(self, X):
-        return X + self.PositionalEncoding
-
 
 class UserEncoder(nn.Module):
     def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit,user_size, word_vectors, NewsEncoder, device="cpu"):

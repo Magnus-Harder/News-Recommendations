@@ -11,7 +11,7 @@ class PositionalEncoding(nn.Module):
         # Define needed built in functions and parameters
         self.d_model = d_model
         self.T = T
-        self.PositionalEncoding = nn.Parameter(th.zeros((int(T), int(d_model))), requires_grad=False)
+        self.PositionalEncoding = nn.Parameter(th.zeros((int(self.T), int(self.d_model))), requires_grad=False)
         self.init_positional_encoding()
 
     # Initialize positional encoding matrix
@@ -41,14 +41,12 @@ class lstransformer(nn.Module):
             self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
             self.encoder = nn.TransformerEncoder(encoder_layer = self.encoderlayer, num_layers = self.num_layers)
             
-            # Decoder
-            self.decoderlayer = nn.TransformerDecoderLayer(d_model, nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
-            self.decoder = nn.TransformerDecoder(decoder_layer = self.decoderlayer, num_layers = self.num_layers)
-            
 
             #Newsencoder and userembedder
             self.newsencoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, window_size, word_vectors, device)
             self.UserEmbedding = nn.Embedding(user_vocab_size, d_model ,padding_idx=0)
+
+            #
 
             self.device = device
 
@@ -64,68 +62,52 @@ class lstransformer(nn.Module):
 
         def forward(self, user_id, embed_his, his_key_mask, candidates):
 
-            # Encode history
-            # (Batch_zize, his_size, title_size, embed_size)
-
-            # (batch_size * his_size, title_size, embed_size)
-            #embede_his = embed_his.reshape(-1, 30, 300)
 
             encoded_his = th.empty((embed_his.shape[0],embed_his.shape[1],400),device=self.device)
 
             for i in range(embed_his.shape[0]):
                  encoded_his[i] = self.newsencoder(embed_his[i])
 
-            # encoded_his
-            # (batch_size * his_size, 400)
-            # (batch_size, his_size, 400)
-            
-            
+
             # Dropouts
             encoded_his = self.dropout1(encoded_his)
 
-            # Add positional encoding to history
-            #encoded_his = self.positional_encoding(encoded_his)
+            # Add User embedding to front of history
+            users = self.UserEmbedding(user_id)
+
+            encoded_his = th.cat((users.unsqueeze(1),encoded_his),dim=1)
+
 
             #embed_his = self.newsencoder(embed_his)
             memory = self.encoder(encoded_his, src_key_padding_mask = his_key_mask)
-            
-
+ 
             # dropouts
             memory = self.dropout2(memory)
 
+            # w is trainable parameter (0-1)
+            User_emb = memory[:,0,:] 
 
+            # Embed candidates
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)
-            
             for i in range(candidates.shape[0]):
                 embed_cand[i] = self.newsencoder(candidates[i])
-
-            users = self.UserEmbedding(user_id)
-            
 
             #Dropouts
             embed_cand = self.dropout3(embed_cand)
 
-            # Add user embedding to front of candidates
+            b, n, t = candidates.shape
+
+            Scores = th.zeros(b,n,device=self.device)
+            for i in range(b):
+                Scores[i] = embed_cand[i] @ User_emb[i]
+
+            return Scores
+
+
             
-            User_embed_cant = th.cat((users.unsqueeze(1),embed_cand),dim=1)
 
-                
 
-            #Decode candidates with memory
-            decoded = self.decoder(User_embed_cant,memory)
-
-            #Dropouts
-            decoded = self.dropout4(decoded)
-
-            V_cand = decoded[:,1:,:]
-            V_user = decoded[:,0,:]
-
-            scores = th.bmm(V_cand,V_user.unsqueeze(2))
-            
-            #Final layer
-            #out = self.outlayer(decoded)
-
-            return scores
+            return 
 
 
 

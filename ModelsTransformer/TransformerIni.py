@@ -34,8 +34,6 @@ class lstransformer(nn.Module):
             super().__init__()
             self.num_layers = num_layers
 
-            # Positional encoding
-            self.positional_encoding = PositionalEncoding(his_size,d_model)
 
             # Encoder 
             self.encoderlayer = nn.TransformerEncoderLayer(d_model,nhead, dim_feedforward=ffdim, dropout=dropout,batch_first=True)
@@ -75,8 +73,6 @@ class lstransformer(nn.Module):
             # Dropouts
             encoded_his = self.dropout1(encoded_his)
 
-            # Add positional encoding to history
-            #encoded_his = self.positional_encoding(encoded_his)
 
             #embed_his = self.newsencoder(embed_his)
             memory = self.encoder(encoded_his, src_key_padding_mask = his_key_mask)
