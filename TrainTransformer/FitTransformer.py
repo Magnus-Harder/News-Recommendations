@@ -86,6 +86,8 @@ if hparams['model']['Transformer']['model'] == 'Additive':
     from ModelsTransformer.TransformerAdditive import lstransformer
 elif hparams['model']['Transformer']['model'] == 'Ini':
     from ModelsTransformer.TransformerIni import lstransformer
+elif hparams['model']['Transformer']['model'] == 'Ini2Enc':
+    from ModelsTransformer.TransformerIni2Enc import lstransformer
 elif hparams['model']['Transformer']['model'] == 'IniLSTUR':
     from ModelsTransformer.TransformerIniLSTUR import lstransformer
 elif hparams['model']['Transformer']['model'] == 'Decoder':
