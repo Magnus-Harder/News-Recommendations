@@ -19,7 +19,7 @@ from TestData.MindDependencies.Metrics import cal_metric
 
 
 # Import Hparam
-with open('hparams/Transformerhparam.yaml','r') as stream:
+with open('hparams/TransformerhparamModel.yaml','r') as stream:
     hparams = yaml.safe_load(stream)
 
 # Import word_vec

@@ -46,7 +46,6 @@ class lstransformer(nn.Module):
 
             #Newsencoder and userembedder
             self.newsencoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, window_size, word_vectors, device)
-            self.ImpressionNewsEncoder = NewsEncoder(attention_dim, word_emb_dim, dropout, filter_num, window_size, word_vectors, device)
             self.UserEmbedding = nn.Embedding(user_vocab_size, d_model ,padding_idx=0)
 
             self.device = device
@@ -85,7 +84,6 @@ class lstransformer(nn.Module):
             embed_cand = th.empty((candidates.shape[0],candidates.shape[1],400),device=self.device)
             for i in range(candidates.shape[0]):
                 embed_cand[i] = self.newsencoder(candidates[i])
-                #embed_cand[i] = self.ImpressionNewsEncoder(candidates[i])
 
             #Embed user id
             users = self.UserEmbedding(user_id)

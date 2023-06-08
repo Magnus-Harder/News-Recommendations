@@ -25,7 +25,7 @@ model:
     num_heads: 4
     dff: 1200
     dropout: 0.2
-    model: "Decoder"
+    model: "Ini"
     set: "None"
 
 train:
