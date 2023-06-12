@@ -13,9 +13,10 @@ import os
 sys.path.insert(1,os.getcwd())
 
 # Import Self-Defined Modules
-from DataLoaders.DataIterator import NewsDataset
+from General.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
-from TestData.MindDependencies.Metrics import cal_metric
+from General.MindDependencies.Metrics import cal_metric
+from dataclasses import dataclass
 
 
 # Import Hparam
@@ -40,18 +41,16 @@ train_behaviors_file = 'Data/MINDsubdemo_train/behaviors.tsv'
 train_news_file = 'Data/MINDdemo_train/news.tsv'
 word_dict_file = 'Data/MINDdemo_utils/word_dict_all.pkl'
 user_dict_file = 'Data/MINDdemo_utils/uid2index.pkl'
-
 valid_behaviors_file = 'Data/MINDdemo_opt/behaviors.tsv'
 valid_news_file = 'Data/MINDdemo_train/news.tsv'
-
-
 with open ("Data/MINDdemo_utils/word_dict.pkl", "rb") as f:
     word_dict = pkl.load(f)
 with open ("Data/MINDdemo_utils/uid2index.pkl", "rb") as f:
     uid2index = pkl.load(f)
 
-from dataclasses import dataclass
 
+
+# Define Dataclass for HyperParams
 @dataclass
 class HyperParams:
     batch_size: int
@@ -60,6 +59,7 @@ class HyperParams:
     wordDict_file: str
     userDict_file: str
 
+# Define HyperParams for data
 hparamsdata = HyperParams(
     batch_size=hparams['train']['batch_size'],
     title_size=hparams['data']['title_length'],
@@ -68,6 +68,7 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
+# Define Dataset
 TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=None,npratio=hparams['data']['npratio'], device=device,train=True,transformer=True)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=TrainData.userid_dict, device=device, train=False)
 
@@ -104,6 +105,8 @@ print('dff:', hparams['model']['Transformer']['dff'])
 print('Hparam set', hparams['model']['Transformer']['set'])
 
 #%%
+
+# Define Model
 TransformerModule = lstransformer(his_size = hparamsdata.his_size, 
                                   d_model = hparams['model']['Transformer']['d_model'], 
                                   ffdim = hparams['model']['Transformer']['dff'], 
@@ -129,6 +132,7 @@ optimizer = th.optim.Adam(model.parameters(), lr=hparams['train']['learning_rate
 loss_fn = th.nn.CrossEntropyLoss()
 loss_vali = th.nn.BCELoss()
 
+# Define masking function
 def get_mask_key(batch_size,data_length, actual_length,device='cpu'):
 
     mask = th.zeros((batch_size,data_length),dtype=th.bool,device=device)
@@ -152,33 +156,40 @@ with th.no_grad():
     preds_all = []
     loss_vali = []
 
+    # Define Batch Size
     batch_size_vali = 1
-
+    
+    # Define DataLoader
     vali_batch_loader = DataLoader(TestData, batch_size=batch_size_vali, shuffle=False)
+    
+    # Loop through batches
     for batch in tqdm(vali_batch_loader):
-        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, _ = batch
 
+        # Get Batch
+        user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, _ = batch
+        
+        # Get Batch Size
         batch_size = user_id.shape[0]
 
+        # Get Mask
         history_mask = get_mask_key(batch_size,hparamsdata.his_size, history_length,device=device)
 
-
+        # Get Scores
         Scores = model(user_id, history_title, history_mask, impressions_title)
         Scores = Scores.squeeze(-1)
 
-        for i in range(batch_size_vali):
-
+        # Loop through batch
+        for i in range(batch_size_vali):    
+            # Get Loss
             loss = loss_fn(Scores[i,:impressions_length[i].item()], labels[i,:impressions_length[i].item()])
             loss_vali.append(loss.item())
-
             labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
             preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
         
     
-
+    # Get Pre-training Metrics
     Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
     Pre_training['loss'] = np.mean(loss_vali)
-
     print(Pre_training)
 
 
@@ -193,25 +204,32 @@ Evaluation_dict = {
     'Loss_training':[]
 }
 
-
+# Loop over epochs
 for epoch in range(hparams['train']['epochs']):
+    # Set model to training mode
     model.train(True)
 
+    # Set batch size
     batch_size_train = hparamsdata.batch_size
 
+    # Get train data loader with shffule
     train_data_loader = DataLoader(TrainData, batch_size=batch_size_train, shuffle=True)
 
-
+    # Loop over each batch from the training set
     for batch in tqdm(train_data_loader):
+        # Zero the gradients
         optimizer.zero_grad()
-            
+        
+        # Get batch
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels,n_positive = batch
 
+        # Get batch size
         batch_size = user_id.shape[0]
 
+        # Get mask
         history_mask = get_mask_key(batch_size,hparamsdata.his_size, history_length)
 
-
+        # Move to device
         user_id = user_id.to(device)
         history_title = history_title.to(device)
         history_length = history_length.to(device)
@@ -219,14 +237,15 @@ for epoch in range(hparams['train']['epochs']):
         labels = labels.to(device)
         history_mask = history_mask.to(device)
 
+        # Forward pass
         Scores = model(user_id, history_title, history_mask, impressions_title)
 
+        # Calculate loss and backpropagate
         loss = loss_fn(Scores, labels.argmax(dim=1).reshape(-1,1))
-
         loss.backward()
-
         optimizer.step()
-
+        
+        # Add loss to Evaluation dict 
         Evaluation_dict['Loss_training'].append(loss.item())
     
     # Validation step
@@ -236,17 +255,22 @@ for epoch in range(hparams['train']['epochs']):
         labels_all = []
         preds_all = []
         loss_vali = []
-
         batch_size_vali = 1
 
+        # Define Validation data loader
         vali_batch_loader = DataLoader(TestData, batch_size=batch_size_vali, shuffle=False)
-        for batch in tqdm(vali_batch_loader):
-            user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, _ = batch
 
+        # loop over the validation set
+        for batch in tqdm(vali_batch_loader):
+
+            # Unpack batch
+            user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, _ = batch
             batch_size = user_id.shape[0]
 
+            # Get Mask
             history_mask = get_mask_key(batch_size,hparamsdata.his_size, history_length)
 
+            # Move to device
             user_id = user_id.to(device)
             history_title = history_title.to(device)
             history_length = history_length.to(device)
@@ -254,22 +278,23 @@ for epoch in range(hparams['train']['epochs']):
             labels = labels.to(device)
             history_mask = history_mask.to(device)
 
-
+            # Get Scores
             Scores = model(user_id, history_title,history_mask, impressions_title)
             Scores = Scores.squeeze(-1)
 
+            # Calculate Loss
             for i in range(batch_size_vali):
-
                 loss = loss_fn(Scores[i,:impressions_length[i].item()], labels[i,:impressions_length[i].item()])
                 loss_vali.append(loss.item())
 
                 labels_all.append(labels[i,:impressions_length[i].item()].cpu().numpy())
                 preds_all.append(Scores[i,:impressions_length[i].item()].detach().cpu().numpy())
             
-
+        # Evaluation Metrics
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
         result['loss'] = np.mean(loss_vali)
 
+        # Add Metrics to Evaluation Dictionary
         Evaluation_dict['AUC'].append(result['group_auc'])
         Evaluation_dict['MRR'].append(result['mean_mrr'])
         Evaluation_dict['NDCG5'].append(result['ndcg@5'])

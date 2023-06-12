@@ -19,9 +19,9 @@ sys.path.insert(1,os.getcwd())
 
 #%%
 # Load from Scripts
-from DataLoaders.DataIterator import NewsDataset
+from General.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
-from TestData.MindDependencies.Metrics import cal_metric
+from General.MindDependencies.Metrics import cal_metric
 
 
 # Import Hparam
@@ -72,10 +72,12 @@ hparamsdata = HyperParams(
     userDict_file=user_dict_file,
 )
 
+# Define Train and Test Dataset
 TrainData = NewsDataset(train_behaviors_file, train_news_file, word_dict_file, userid_dict=None,npratio=hparams['data']['npratio'],device = device, train=True,transformer=False)
 TestData = NewsDataset(valid_behaviors_file, valid_news_file, word_dict_file, userid_dict=TrainData.userid_dict, train=False, device = device,transformer=False)
 
 # %%
+# Load Model
 from ModelsLSTUR.LSTURini import LSTURini
 
 # Set Model Architecture
@@ -91,15 +93,13 @@ LSTURini_module = LSTURini(
     device = device
 )
 
-# Training 
+# Move model to device
 print(device)
-
 model = LSTURini_module.to(device)
 
 
-# Define Optimizer
+# Define Optimizer and Loss Function
 optimizer = th.optim.Adam(model.parameters(), lr=hparamstrain['learning_rate'])
-
 loss_fn = th.nn.CrossEntropyLoss()
 
 #%%
@@ -111,23 +111,27 @@ with th.no_grad():
     preds_all = []
     loss_vali = []
 
+    # Define DataLoaders for validation without shuffling
     vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=False)
 
+    # Validation
     for batch in tqdm(vali_batch_loader):
+        
+        # unpack the batch 
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
 
+        # Get the scores
         Scores = model(user_id, history_title, history_length, impressions_title)
 
+        # Calculate the loss and backpropagate
         loss = loss_fn(Scores, labels)
         loss_vali.append(loss.item())
-    
         labels_all.append(labels.cpu().squeeze(0).numpy())
         preds_all.append(Scores.cpu().squeeze(0).detach().numpy())
 
-    
+    # Calculate metrics
     Pre_training = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
     Pre_training['loss'] = np.mean(loss_vali)
-    
     print(Pre_training)
 
 
@@ -143,28 +147,33 @@ Evaluation_dict = {
     'Loss_training':[]
 }
 
-
+# Training
 for epoch in range(hparams['train']['epochs']):
+    # Set model to training mode
     model.train(True)
 
+    # Define DataLoaders for training with shuffling
     train_data_loader = DataLoader(TrainData, batch_size=hparams['train']['batch_size'], shuffle=True)
 
+    # Training
     for batch in tqdm(train_data_loader):
-
+        
+        # unpack the batch
         user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
 
+        # Get the scores
         Scores = model(user_id, history_title, history_length, impressions_title)
 
+        # Calculate the loss and backpropagate
         loss = loss_fn(Scores,labels)
-
         loss.backward()
-
         optimizer.step()
 
+        # Save the loss
         Evaluation_dict['Loss_training'].append(loss.item())
         optimizer.zero_grad()
 
-    
+    # Validation
     with th.no_grad():
         model.eval()
         model.train(False)
@@ -172,31 +181,30 @@ for epoch in range(hparams['train']['epochs']):
         preds_all = []
         loss_vali = []
 
+        # Define the validation data loader
         vali_batch_loader = DataLoader(TestData, batch_size=1, shuffle=False)
-
+        
+        # Get the predictions
         for batch in tqdm(vali_batch_loader):
             user_id, history_title, history_abstract, history_length, impressions_title, impressions_abstract, impressions_length, labels, n_positive = batch
-
             Scores = model(user_id, history_title, history_length, impressions_title)
-
             loss = loss_fn(Scores, labels)
             loss_vali.append(loss.item())
-
             labels_all.append(labels.cpu().squeeze(0).numpy())
             preds_all.append(Scores.cpu().squeeze(0).detach().numpy())
   
-        
+        # Calculate the metrics
         result = cal_metric(labels_all,preds_all,metrics=['group_auc', 'mean_mrr', 'ndcg@5;10'])
         result['loss'] = np.mean(loss_vali)
 
-
+        # Add the metrics to the dictionary
         Evaluation_dict['AUC'].append(result['group_auc'])
         Evaluation_dict['MRR'].append(result['mean_mrr'])
         Evaluation_dict['NDCG5'].append(result['ndcg@5'])
         Evaluation_dict['NDCG10'].append(result['ndcg@10'])
         Evaluation_dict['loss_vali'].append(result['loss'])
 
-    
+    # Print the result for each epoch
     print(f'Memory: {th.cuda.memory_reserved()/(10**9)} GB')
     print(result)
 

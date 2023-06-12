@@ -3,7 +3,7 @@ from tqdm import tqdm
 import pickle as pkl
 
 from General.Utils import ValidateModel
-from DataLoaders.DataIterator import NewsDataset
+from General.DataIterator import NewsDataset
 from torch.utils.data import DataLoader
 
 
