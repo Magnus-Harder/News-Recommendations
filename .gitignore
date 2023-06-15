@@ -145,3 +145,7 @@ torchtext_data6B
 
 # Data files
 Data/MIND_large_test/
+
+# Ignore model files
+Bert/News_vocab.pkl
+Bert/title_bert.pkl

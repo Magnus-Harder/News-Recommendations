@@ -4,8 +4,10 @@ import torch as th
 import torch.nn as nn
 import torch.nn.functional as F
 
+
+# Define the title encoder
 class TitleEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, word_vectors, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit , word_vectors, device="cpu"):
         super(TitleEncoder, self).__init__()
 
         # Dropout Layers
@@ -65,21 +67,44 @@ class TitleEncoder(nn.Module):
         for i in range(seq_len):
             e[i] = alpha[i] @ C[i]
 
+
         return e
+
+
+#Define the topic encoder
+class TopicEncoder(nn.Module):
+    def __init__(self, topic_dim, subtopic_dim, topic_size, subtopic_size):
+        super(TopicEncoder, self).__init__()
+        self.topic_embed = nn.Embedding(topic_size, topic_dim, padding_idx=0)
+        self.subtopic_embed = nn.Embedding(subtopic_size, subtopic_dim, padding_idx=0)
+        
+
+    def forward(self, topic, subtopic):
+        
+        topic = self.topic_embed(topic)
+        subtopic = self.subtopic_embed(subtopic)
+
+
+        return th.hstack([topic, subtopic])
 
 
 
 # Define News Encoder
 class NewsEncoder(nn.Module):
-    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, word_vectors, device="cpu"):
+    def __init__(self, attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device="cpu"):
         super(NewsEncoder, self).__init__()
         self.dropout = nn.Dropout(dropout)
-        self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, word_vectors, device)
+        self.TitleEncoder = TitleEncoder(attention_dim, word_emb_dim, dropout, filter_num, windows_size, gru_unit, word_vectors, device)
+        #self.TopicEncoder = TopicEncoder(topic_dim, subtopic_dim, topic_size, subtopic_size)
+
+        # Initialize the weights
 
 
     def forward(self, news_titles):
         
         title = self.TitleEncoder(news_titles)
+
+        
 
         out  = self.dropout(title)
 
