@@ -197,7 +197,7 @@ for epoch in range(hparams['train']['epochs']):
         batch_size = user_id.shape[0]
 
         # Get mask
-        history_mask = get_mask_key(batch_size,50, history_length)
+        history_mask = get_mask_key(batch_size,50, history_length, device=device)
 
         # Get Scores
         Scores = model(user_id, history, history_category, history_subcategory, impressions, impressions_category, impressions_subcategory, history_mask)
@@ -236,7 +236,7 @@ for epoch in range(hparams['train']['epochs']):
             batch_size = user_id.shape[0]
 
             # Get mask
-            history_mask = get_mask_key(batch_size,50, history_length)
+            history_mask = get_mask_key(batch_size,50, history_length, device=device)
 
             # Get Scores
             Scores = model(user_id, history, history_category, history_subcategory, impressions, impressions_category, impressions_subcategory, history_mask)
@@ -268,13 +268,13 @@ for epoch in range(hparams['train']['epochs']):
 # %%
 
 # Saving Training Logs
-filestring = f'EvaluationTranformer{hparams["model"]["Transformer"]["model"]}{hparams["model"]["Transformer"]["set"]}.pkl'
+filestring = f'EvaluationCTNR{hparams["model"]["Transformer"]["model"]}.pkl'
 with open(filestring, 'wb') as f:
     pkl.dump([Evaluation_dict], f)
 
 #%%
 # Save Last Predictions
-Dictfilestring = f'Transformer{hparams["model"]["Transformer"]["model"]}{dataset}Predictions.pkl'
+Dictfilestring = f'CTNR{hparams["model"]["Transformer"]["model"]}{dataset}Predictions.pkl'
 
 with open(Dictfilestring, 'wb') as f:
     pkl.dump({'preds': preds_all, 'labels': labels_all, 'user ids': user_id_all, 'UserDict': TrainData.userid_dict}, f)
