@@ -74,28 +74,81 @@ with th.no_grad():
 
         title_dict_news[News_vocab.lookup_indices([id])[0]] = bertout.pooler_output[0]
 
-
-    
-
-
 # %%
 
 title_rep = th.zeros((News_vocab.__len__(),dim_bert))
 
+
 for id in News_con.news_id:
     vocab_id = News_vocab.lookup_indices([id])[0]
-    print(vocab_id)
-    title_rep[vocab_id] = title_dict_news[vocab_id]
+    title_rep[vocab_id] = title_dict_news[vocab_id].cpu()
 
     
 # Save title_rep and News_vocab
-
+#%%
 with open('Bert/title_bert.pkl', 'wb') as f:
     pkl.dump(title_rep, f)
 
 with open('Bert/News_vocab.pkl', 'wb') as f:
     pkl.dump(News_vocab, f)
 
+#%%
+# Do the same for abstract
 
+max_abstract_length = max([len(Tokenizer(abstract)['input_ids']) if type(abstract) == str else 0 for abstract in News_con['abstract']])
+
+print("Max abstract length: ", max_abstract_length)
+
+# Create News_dict with news_id as key and Category and Subcategory and title as value
+
+abstract_dict_news = {}
+abstract_list = []
+news_id_list = []
+
+for abstract,id in zip(News_con.abstract,News_con.news_id):
+    if type(abstract) == str:
+        abstract_list.append(abstract)
+        news_id_list.append(id)
+    else:
+        abstract_list.append("")
+        print(abstract)
+
+#%%
+abstract_token_padded = Tokenizer(abstract_list,return_tensors='pt',max_length=100, truncation=True, padding='max_length')
+abstract_token_padded = abstract_token_padded.to(device)
+
+
+print("Successfully started News_dict",device,file=sys.stdout)
+
+#%%
+with th.no_grad():
+
+    # Create News_dict with news_id as key and Category and Subcategory and title as value
+    for idx, id in tqdm(enumerate(News_con.news_id)):
+
+        
+        bertout = Bert(
+            input_ids=abstract_token_padded['input_ids'][idx].unsqueeze(0),
+            attention_mask=abstract_token_padded['attention_mask'][idx].unsqueeze(0),
+            token_type_ids=abstract_token_padded['token_type_ids'][idx].unsqueeze(0)
+        )
+
+        abstract_dict_news[News_vocab.lookup_indices([id])[0]] = bertout.pooler_output[0].cpu()
+
+# %%
+
+abstract_rep = th.zeros((News_vocab.__len__(),dim_bert))
+
+
+for id in News_con.news_id:
+
+    vocab_id = News_vocab.lookup_indices([id])[0]
+    abstract_rep[vocab_id] = abstract_dict_news[vocab_id].cpu()
+
+#%%
+# Save abstract_rep and News_vocab
+
+with open('Bert/abstract_bert.pkl', 'wb') as f:
+    pkl.dump(abstract_rep, f)
 
 # %%

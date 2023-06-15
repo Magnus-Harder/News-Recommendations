@@ -148,4 +148,5 @@ Data/MIND_large_test/
 
 # Ignore model files
 Bert/News_vocab.pkl
+Bert/abstract_bert.pkl
 Bert/title_bert.pkl

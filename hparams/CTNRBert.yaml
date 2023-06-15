@@ -1,0 +1,30 @@
+# Hyperparameters in Tranformer model
+
+data:
+  batch_size: 32
+  history_length: 50
+  title_length: 30
+  abstract_length: 100
+  npratio: 4
+  word_embedding_dim: 300
+
+
+
+model:
+  Transformer:
+    d_model: 864
+    num_layers: 2
+    num_heads: 16
+    dff: 2592
+    dropout: 0.2
+    model: "Ini"
+    set: "None"
+
+train:
+  batch_size: 128
+  epochs: 25
+  learning_rate: 0.0001
+  optimizer: Adam
+  loss: CrossEntropyLoss
+
+
